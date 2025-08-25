@@ -478,19 +478,34 @@ if run_btn:
     </div>
     """, unsafe_allow_html=True)
     
+    # Display steps with improved visibility
     for i, step in enumerate(recipe.steps, start=1):
-        st.markdown(f"""
-        <div style="background: white; border-left: 4px solid #667eea; 
-                    padding: 1rem; margin: 1rem 0; border-radius: 0 10px 10px 0; 
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="color: #667eea; font-weight: bold; font-size: 1.1rem;">
-                Step {i}
+        # Create a container for better styling
+        with st.container():
+            # Step header
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                        color: white; padding: 1rem 1.5rem; margin: 1rem 0 0 0; 
+                        border-radius: 15px 15px 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <div style="font-weight: bold; font-size: 1.1rem; font-family: 'Poppins', sans-serif;">
+                    🔸 Step {i}
+                </div>
             </div>
-            <div style="margin-top: 0.5rem; line-height: 1.6;">
-                {step}
+            """, unsafe_allow_html=True)
+            
+            # Step content - escaping HTML characters to prevent issues
+            import html
+            step_escaped = html.escape(step)
+            
+            st.markdown(f"""
+            <div style="background: white; padding: 1.5rem; margin: 0 0 1.5rem 0; 
+                        border-radius: 0 0 15px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                        border: 1px solid #e0e0e0; border-top: none;">
+                <div style="color: #333; font-size: 1rem; line-height: 1.8; font-family: 'Poppins', sans-serif;">
+                    {step_escaped}
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
     # Compute macros
     with st.spinner("Calculating macros from USDA…"):
