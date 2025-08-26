@@ -12,7 +12,11 @@ A smart recipe generator that creates personalized healthy recipes from your ava
 - **📊 Nutritional Analysis**: Fetches accurate macro data (protein, carbs, fat, fiber) from USDA FoodData Central
 - **🍽️ Smart Portioning**: Calculates macros per serving and total recipe
 - **🎯 Ingredient-Only Recipes**: Creates recipes using ONLY the ingredients you provide
-- **📱 Clean UI**: Modern, responsive Streamlit interface
+- **📱 Clean UI**: Modern, responsive Streamlit interface with beautiful animations
+- **🗄️ Recipe Database**: SQLite database to store, search, and manage your recipes
+- **⭐ Favorites & Ratings**: Rate recipes and save favorites for easy access
+- **📚 Recipe History**: Browse, search, and revisit all your generated recipes
+- **📈 Analytics**: Track your recipe generation stats and success rates
 - **⚡ Fast & Free**: Leverages free APIs for cost-effective operation
 
 ## 🚀 Demo
@@ -23,6 +27,8 @@ Simply enter your available ingredients (e.g., "chicken breast, quinoa, spinach,
 2. **Macro Breakdown** per ingredient 
 3. **Per-Serving Nutrition** for meal planning
 4. **Total Recipe Macros** for batch cooking
+5. **Automatic Database Storage** for future reference
+6. **Rating & Favorites** system for recipe management
 
 ## 🛠️ Installation
 

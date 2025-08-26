@@ -6,6 +6,7 @@ from groq import Groq
 from pydantic import BaseModel, Field, ValidationError
 from typing import List, Tuple
 from utils import compute_macros
+from database import RecipeDatabase
 
 st.set_page_config(
     page_title="AI Healthy Recipe & Macros", 
@@ -22,6 +23,13 @@ USDA_API_KEY = st.secrets.get("usda_api_key")
 if USDA_API_KEY:
     os.environ["USDA_API_KEY"] = USDA_API_KEY
     os.environ["usda_api_key"] = USDA_API_KEY
+
+# Initialize database
+@st.cache_resource
+def init_database():
+    return RecipeDatabase()
+
+db = init_database()
 
 # --- Models for structured output validation ---
 class IngredientOut(BaseModel):
@@ -326,6 +334,33 @@ with st.sidebar:
     - Add healthy fats
     - Keep ingredient names simple
     """)
+    
+    st.markdown("---")
+    
+    # Database Statistics
+    st.markdown("### 📊 **Your Recipe Stats**")
+    try:
+        stats = db.get_recipe_stats()
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric("Total Recipes", stats['total_recipes'])
+            st.metric("Favorites", stats['favorite_recipes'])
+        
+        with col2:
+            st.metric("Avg Rating", f"{stats['average_rating']}/5")
+            st.metric("Success Rate", f"{stats['success_rate']}%")
+    except Exception as e:
+        st.error(f"Database error: {str(e)}")
+    
+    st.markdown("---")
+    
+    # Recipe History Section
+    if st.button("📚 View Recipe History", use_container_width=True):
+        st.session_state.show_history = True
+    
+    if st.button("⭐ View Favorites", use_container_width=True):
+        st.session_state.show_favorites = True
 
 # --- Feature Cards Section ---
 st.markdown("<br>", unsafe_allow_html=True)
@@ -609,9 +644,176 @@ if run_btn:
     </div>
     """, unsafe_allow_html=True)
     
+    # Save recipe to database
+    try:
+        ingredients_for_db = [{"name": i.name, "grams": float(i.grams)} for i in recipe.ingredients_grams]
+        recipe_id = db.save_recipe(
+            title=recipe.title,
+            servings=recipe.servings,
+            ingredients=ingredients_for_db,
+            steps=recipe.steps,
+            nutrition_per_recipe=totals,
+            nutrition_per_serving=per_serving
+        )
+        
+        # Log successful generation
+        db.log_recipe_generation(
+            input_ingredients=ingredients_input,
+            recipe_id=recipe_id,
+            success=True
+        )
+        
+        # Store recipe ID in session state for potential rating/favoriting
+        st.session_state.current_recipe_id = recipe_id
+        
+        # Success notification with rating/favorite options
+        st.success(f"✅ Recipe saved to database! Recipe ID: {recipe_id[:8]}...")
+        
+        # Add rating and favorite options for the current recipe
+        st.markdown("---")
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            st.markdown("### 💫 Rate this recipe:")
+        
+        with col2:
+            rating = st.selectbox(
+                "Rating (1-5):",
+                options=[0, 1, 2, 3, 4, 5],
+                index=0,
+                key="current_recipe_rating"
+            )
+            if rating > 0:
+                if db.update_recipe_rating(recipe_id, rating):
+                    st.success(f"Rated {rating}/5 ⭐")
+        
+        with col3:
+            if st.button("🤍 Add to Favorites", key="add_favorite"):
+                if db.toggle_favorite(recipe_id):
+                    st.success("Added to favorites! 💖")
+        
+    except Exception as e:
+        # Log failed save attempt
+        db.log_recipe_generation(
+            input_ingredients=ingredients_input,
+            success=False,
+            error_message=str(e)
+        )
+        st.warning(f"⚠️ Recipe generated but couldn't save to database: {str(e)}")
+    
     # Set recipe generated flag for success animation
     st.session_state.recipe_generated = True
     st.balloons()
+
+# Recipe History and Favorites Sections
+if st.session_state.get('show_history', False):
+    st.markdown("---")
+    st.markdown("## 📚 Recipe History")
+    
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        search_query = st.text_input("🔍 Search recipes:", placeholder="Search by title or ingredient...")
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("❌ Close History"):
+            st.session_state.show_history = False
+            st.rerun()
+    
+    try:
+        if search_query:
+            recipes = db.search_recipes(search_query)
+        else:
+            recipes = db.get_all_recipes(limit=10)
+        
+        if recipes:
+            for recipe in recipes:
+                with st.expander(f"🍽️ {recipe.title} - {recipe.created_at[:10]}"):
+                    col1, col2, col3 = st.columns([2, 1, 1])
+                    
+                    with col1:
+                        st.write(f"**Servings:** {recipe.servings}")
+                        st.write(f"**Ingredients:** {', '.join([ing['name'] for ing in recipe.ingredients])}")
+                    
+                    with col2:
+                        # Rating system
+                        current_rating = recipe.rating or 0
+                        rating = st.selectbox(
+                            "Rate this recipe:",
+                            options=[0, 1, 2, 3, 4, 5],
+                            index=current_rating,
+                            key=f"rating_{recipe.id}"
+                        )
+                        if rating != current_rating and rating > 0:
+                            if db.update_recipe_rating(recipe.id, rating):
+                                st.success("Rating updated!")
+                    
+                    with col3:
+                        # Favorite toggle
+                        fav_text = "💖 Unfavorite" if recipe.is_favorite else "🤍 Favorite"
+                        if st.button(fav_text, key=f"fav_{recipe.id}"):
+                            if db.toggle_favorite(recipe.id):
+                                st.success("Favorite status updated!")
+                                st.rerun()
+                    
+                    # Show nutrition summary
+                    if recipe.nutrition_per_serving:
+                        st.write("**Nutrition per serving:**")
+                        nut_cols = st.columns(4)
+                        nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)"]
+                        for i, nutrient in enumerate(nutrients):
+                            if nutrient in recipe.nutrition_per_serving:
+                                nut_cols[i].metric(
+                                    nutrient.replace(" (g)", ""), 
+                                    f"{recipe.nutrition_per_serving[nutrient]}g"
+                                )
+        else:
+            st.info("No recipes found. Generate some recipes first!")
+            
+    except Exception as e:
+        st.error(f"Error loading recipe history: {str(e)}")
+
+if st.session_state.get('show_favorites', False):
+    st.markdown("---")
+    st.markdown("## ⭐ Favorite Recipes")
+    
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("❌ Close Favorites"):
+            st.session_state.show_favorites = False
+            st.rerun()
+    
+    try:
+        favorites = db.get_favorites()
+        
+        if favorites:
+            for recipe in favorites:
+                with st.expander(f"⭐ {recipe.title} - Rating: {recipe.rating or 'Not rated'}/5"):
+                    st.write(f"**Created:** {recipe.created_at[:10]}")
+                    st.write(f"**Servings:** {recipe.servings}")
+                    st.write(f"**Ingredients:** {', '.join([ing['name'] for ing in recipe.ingredients])}")
+                    
+                    # Show steps
+                    st.write("**Cooking Steps:**")
+                    for i, step in enumerate(recipe.steps, 1):
+                        st.write(f"{i}. {step}")
+                    
+                    # Show nutrition
+                    if recipe.nutrition_per_serving:
+                        st.write("**Nutrition per serving:**")
+                        nut_cols = st.columns(4)
+                        nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)"]
+                        for i, nutrient in enumerate(nutrients):
+                            if nutrient in recipe.nutrition_per_serving:
+                                nut_cols[i].metric(
+                                    nutrient.replace(" (g)", ""), 
+                                    f"{recipe.nutrition_per_serving[nutrient]}g"
+                                )
+        else:
+            st.info("No favorite recipes yet. Mark some recipes as favorites!")
+            
+    except Exception as e:
+        st.error(f"Error loading favorite recipes: {str(e)}")
 
 # Footer with additional features
 st.markdown("<br><br>", unsafe_allow_html=True)
