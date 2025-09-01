@@ -409,6 +409,32 @@ class RecipeDatabase:
         
         return success
     
+    def clear_all_recipes(self) -> bool:
+        """Delete all recipes and history from the database."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        try:
+            # Delete all recipes
+            cursor.execute('DELETE FROM recipes')
+            recipes_deleted = cursor.rowcount
+            
+            # Delete all recipe history
+            cursor.execute('DELETE FROM recipe_history')
+            history_deleted = cursor.rowcount
+            
+            # Reset user preferences
+            cursor.execute('DELETE FROM user_preferences')
+            
+            conn.commit()
+            conn.close()
+            
+            return True
+        except Exception as e:
+            conn.rollback()
+            conn.close()
+            return False
+    
     def filter_recipes(self, dietary_restriction: str = None, cuisine_type: str = None,
                       meal_type: str = None, cooking_time: str = None, 
                       difficulty_level: str = None, limit: int = 50) -> List[Recipe]:

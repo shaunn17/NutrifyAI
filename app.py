@@ -709,6 +709,19 @@ with st.sidebar:
     
     if st.button("⭐ View Favorites", use_container_width=True):
         st.session_state.show_favorites = True
+    
+    st.markdown("---")
+    
+    # Recipe Management Section
+    st.markdown("### 🗂️ **Recipe Management**")
+    
+    # Individual recipe deletion
+    if st.button("🗑️ Delete Individual Recipe", use_container_width=True):
+        st.session_state.show_delete_individual = True
+    
+    # Clear all recipes with confirmation
+    if st.button("💥 Clear All Recipes", use_container_width=True, type="secondary"):
+        st.session_state.show_clear_all = True
 
 # --- Feature Cards Section ---
 st.markdown("<br>", unsafe_allow_html=True)
@@ -1368,6 +1381,116 @@ if st.session_state.get('show_favorites', False):
             
     except Exception as e:
         st.error(f"Error loading favorite recipes: {str(e)}")
+
+# --- Recipe Management Sections ---
+
+# Individual Recipe Deletion
+if st.session_state.get('show_delete_individual', False):
+    st.markdown("---")
+    st.markdown("## 🗑️ Delete Individual Recipe")
+    
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("❌ Close Deletion"):
+            st.session_state.show_delete_individual = False
+            st.rerun()
+    
+    try:
+        all_recipes = db.get_all_recipes(limit=50)
+        
+        if all_recipes:
+            st.warning("⚠️ **Warning:** Deleting a recipe is permanent and cannot be undone!")
+            
+            # Create a list of recipe options for selection
+            recipe_options = [f"{recipe.title} ({recipe.created_at[:10]})" for recipe in all_recipes]
+            recipe_ids = [recipe.id for recipe in all_recipes]
+            
+            selected_recipe_index = st.selectbox(
+                "Select a recipe to delete:",
+                options=range(len(recipe_options)),
+                format_func=lambda x: recipe_options[x],
+                key="delete_recipe_select"
+            )
+            
+            if selected_recipe_index is not None:
+                selected_recipe = all_recipes[selected_recipe_index]
+                
+                # Show recipe details before deletion
+                st.markdown("### Recipe Details:")
+                st.write(f"**Title:** {selected_recipe.title}")
+                st.write(f"**Created:** {selected_recipe.created_at[:10]}")
+                st.write(f"**Servings:** {selected_recipe.servings}")
+                st.write(f"**Ingredients:** {', '.join([ing['name'] for ing in selected_recipe.ingredients])}")
+                
+                # Confirmation button
+                if st.button("🗑️ Delete This Recipe", type="primary"):
+                    if db.delete_recipe(selected_recipe.id):
+                        st.success(f"✅ Recipe '{selected_recipe.title}' deleted successfully!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Failed to delete recipe. Please try again.")
+        else:
+            st.info("No recipes found to delete. Generate some recipes first!")
+            
+    except Exception as e:
+        st.error(f"Error loading recipes for deletion: {str(e)}")
+
+# Clear All Recipes
+if st.session_state.get('show_clear_all', False):
+    st.markdown("---")
+    st.markdown("## 💥 Clear All Recipes")
+    
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("❌ Cancel"):
+            st.session_state.show_clear_all = False
+            st.rerun()
+    
+    try:
+        stats = db.get_recipe_stats()
+        
+        st.error("🚨 **DANGER ZONE** 🚨")
+        st.markdown("""
+        **This action will permanently delete:**
+        - All saved recipes
+        - All recipe history
+        - All ratings and favorites
+        - All user preferences
+        
+        **This action cannot be undone!**
+        """)
+        
+        st.markdown(f"**Current Database Stats:**")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Recipes", stats['total_recipes'])
+        with col2:
+            st.metric("Favorites", stats['favorite_recipes'])
+        with col3:
+            st.metric("Total History", stats['total_attempts'])
+        
+        # Confirmation input
+        confirmation = st.text_input(
+            "Type 'DELETE ALL' to confirm:",
+            placeholder="Type exactly: DELETE ALL",
+            key="clear_all_confirmation"
+        )
+        
+        if confirmation == "DELETE ALL":
+            if st.button("💥 CONFIRM DELETE ALL RECIPES", type="primary"):
+                if db.clear_all_recipes():
+                    st.success("✅ All recipes and history cleared successfully!")
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.error("❌ Failed to clear recipes. Please try again.")
+        elif confirmation:
+            st.warning("❌ Please type 'DELETE ALL' exactly to confirm.")
+            
+    except Exception as e:
+        st.error(f"Error accessing database: {str(e)}")
 
 # Footer with additional features
 st.markdown("<br><br>", unsafe_allow_html=True)
