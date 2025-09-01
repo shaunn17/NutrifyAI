@@ -12,6 +12,7 @@ NUTRIENT_KEYS = {
     "carbs": "Carbohydrate, by difference",
     "fat": "Total lipid (fat)",
     "fiber": "Fiber, total dietary",
+    "calories": "Energy",
 }
 
 def _first(lst, default=None):
@@ -50,7 +51,7 @@ def get_food_nutrients_per_100g(fdc_id: int) -> Optional[Dict[str, float]]:
     except Exception:
         return None
 
-    result = {"Protein (g)": 0.0, "Carbs (g)": 0.0, "Fat (g)": 0.0, "Fiber (g)": 0.0}
+    result = {"Protein (g)": 0.0, "Carbs (g)": 0.0, "Fat (g)": 0.0, "Fiber (g)": 0.0, "Calories": 0.0}
 
     nutrients = data.get("foodNutrients", []) or []
     for n in nutrients:
@@ -66,6 +67,8 @@ def get_food_nutrients_per_100g(fdc_id: int) -> Optional[Dict[str, float]]:
             result["Fat (g)"] = float(amount)
         elif nutrient_name == NUTRIENT_KEYS["fiber"]:
             result["Fiber (g)"] = float(amount)
+        elif nutrient_name == NUTRIENT_KEYS["calories"]:
+            result["Calories"] = float(amount)
 
     return result
 
@@ -77,6 +80,7 @@ def scale_macros(per100g: Dict[str, float], grams: float) -> Dict[str, float]:
         "Carbs (g)": round(per100g.get("Carbs (g)", 0.0) * factor, 2),
         "Fat (g)": round(per100g.get("Fat (g)", 0.0) * factor, 2),
         "Fiber (g)": round(per100g.get("Fiber (g)", 0.0) * factor, 2),
+        "Calories": round(per100g.get("Calories", 0.0) * factor, 2),
     }
 
 def compute_macros(ingredient_grams: List[Tuple[str, float]]) -> Tuple[pd.DataFrame, Dict[str, float]]:
@@ -90,7 +94,7 @@ def compute_macros(ingredient_grams: List[Tuple[str, float]]) -> Tuple[pd.DataFr
         if not fdc_id:
             rows.append({
                 "Ingredient": name, "Grams": grams,
-                "Protein (g)": 0, "Carbs (g)": 0, "Fat (g)": 0, "Fiber (g)": 0,
+                "Protein (g)": 0, "Carbs (g)": 0, "Fat (g)": 0, "Fiber (g)": 0, "Calories": 0,
                 "Note": "No USDA match"
             })
             continue
@@ -104,7 +108,7 @@ def compute_macros(ingredient_grams: List[Tuple[str, float]]) -> Tuple[pd.DataFr
 
     df = pd.DataFrame(rows)
     if df.empty:
-        totals = {"Protein (g)": 0.0, "Carbs (g)": 0.0, "Fat (g)": 0.0, "Fiber (g)": 0.0}
+        totals = {"Protein (g)": 0.0, "Carbs (g)": 0.0, "Fat (g)": 0.0, "Fiber (g)": 0.0, "Calories": 0.0}
         return df, totals
 
     totals = {
@@ -112,5 +116,6 @@ def compute_macros(ingredient_grams: List[Tuple[str, float]]) -> Tuple[pd.DataFr
         "Carbs (g)": round(df["Carbs (g)"].sum(), 2),
         "Fat (g)": round(df["Fat (g)"].sum(), 2),
         "Fiber (g)": round(df["Fiber (g)"].sum(), 2),
+        "Calories": round(df["Calories"].sum(), 2),
     }
     return df, totals

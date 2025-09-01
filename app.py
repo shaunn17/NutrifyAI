@@ -98,150 +98,386 @@ def generate_recipe_json(ingredients: List[str]) -> RecipeOut:
 st.markdown("""
 <style>
     /* Import Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* Main app styling */
-    .main {
-        padding-top: 2rem;
+    /* CSS Variables for Design System */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --glass-border: rgba(255, 255, 255, 0.15);
+        --text-primary: #ffffff;
+        --text-secondary: rgba(255, 255, 255, 0.8);
+        --text-muted: rgba(255, 255, 255, 0.6);
+        --shadow-light: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.15);
+        --shadow-heavy: 0 16px 64px rgba(0, 0, 0, 0.2);
+        --border-radius-sm: 8px;
+        --border-radius-md: 16px;
+        --border-radius-lg: 24px;
+        --border-radius-xl: 32px;
+        --transition-fast: 0.2s ease;
+        --transition-medium: 0.3s ease;
+        --transition-slow: 0.5s ease;
     }
     
-    /* Custom header styling */
-    .hero-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 3rem 2rem;
-        border-radius: 20px;
-        margin-bottom: 2rem;
-        color: white;
+    /* Main app styling with advanced background */
+    .main {
+        padding-top: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%),
+            linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    /* Animated background elements */
+    .main::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        animation: backgroundFloat 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    @keyframes backgroundFloat {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(-10px, -10px) rotate(1deg); }
+        50% { transform: translate(10px, -5px) rotate(-1deg); }
+        75% { transform: translate(-5px, 10px) rotate(0.5deg); }
+    }
+    
+    /* Advanced glassmorphism with multiple layers */
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        margin: 1.5rem 0;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-medium);
+        transition: all var(--transition-medium);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.1) 100%);
+        opacity: 0;
+        transition: opacity var(--transition-medium);
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: var(--shadow-heavy);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .glass-card:hover::before {
+        opacity: 1;
+    }
+    
+    .glass-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent);
+        animation: rotate 4s linear infinite;
+        opacity: 0;
+        transition: opacity var(--transition-medium);
+    }
+    
+    .glass-card:hover::after {
+        opacity: 1;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Hero header with advanced effects */
+    .hero-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(30px) saturate(200%);
+        -webkit-backdrop-filter: blur(30px) saturate(200%);
+        padding: 4rem 3rem;
+        border-radius: var(--border-radius-xl);
+        margin: 2rem 0 3rem 0;
+        color: var(--text-primary);
+        text-align: center;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-heavy);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .hero-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        animation: heroShimmer 6s ease-in-out infinite;
+    }
+    
+    @keyframes heroShimmer {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.05); }
     }
     
     .hero-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 3rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3.5rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: titleGlow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes titleGlow {
+        from { filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+        to { filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); }
     }
     
     .hero-subtitle {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.2rem;
-        font-weight: 300;
-        opacity: 0.9;
-        margin-bottom: 1rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+        letter-spacing: 0.5px;
     }
     
     .hero-description {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
         font-weight: 400;
-        opacity: 0.8;
-        max-width: 600px;
+        color: var(--text-muted);
+        max-width: 700px;
         margin: 0 auto;
+        line-height: 1.7;
+        position: relative;
+        z-index: 1;
     }
     
-    /* Feature cards */
-    .feature-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        text-align: center;
-        margin: 1rem 0;
-        border-left: 4px solid #667eea;
-        transition: transform 0.3s ease;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    
+    /* Advanced feature styling */
     .feature-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        transition: all var(--transition-medium);
+    }
+    
+    .glass-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+        filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
     }
     
     .feature-title {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        font-size: 1.3rem;
+        position: relative;
+        z-index: 1;
+        letter-spacing: 0.5px;
     }
     
     .feature-desc {
-        font-family: 'Poppins', sans-serif;
-        color: #666;
-        font-size: 0.9rem;
+        font-family: 'Inter', sans-serif;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
     }
     
-    /* Input styling */
+    /* Revolutionary input styling */
     .stTextArea textarea {
-        border-radius: 10px;
-        border: 2px solid #e0e0e0;
-        font-family: 'Poppins', sans-serif;
+        border-radius: var(--border-radius-md);
+        border: 2px solid var(--glass-border);
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px) saturate(150%);
+        color: var(--text-primary);
+        padding: 1rem;
+        transition: all var(--transition-medium);
+        box-shadow: var(--shadow-light);
     }
     
     .stTextArea textarea:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), var(--shadow-medium);
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
     }
     
-    /* Button styling */
+    .stTextArea textarea::placeholder {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+    
+    /* Advanced button styling */
     .stButton button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 25px;
-        font-family: 'Poppins', sans-serif;
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        border: 2px solid var(--glass-border);
+        padding: 1rem 2rem;
+        border-radius: var(--border-radius-md);
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 600;
         font-size: 1rem;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s ease;
+        transition: all var(--transition-medium);
+        backdrop-filter: blur(15px) saturate(150%);
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        box-shadow: var(--shadow-light);
     }
     
     .stButton button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: var(--shadow-heavy);
+        border-color: rgba(255, 255, 255, 0.3);
     }
     
-    /* Results styling */
+    .stButton button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left var(--transition-slow);
+    }
+    
+    .stButton button:hover::before {
+        left: 100%;
+    }
+    
+    /* Advanced recipe cards */
     .recipe-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-        border-top: 5px solid #667eea;
+        background: var(--glass-bg);
+        backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        padding: 2.5rem;
+        border-radius: var(--border-radius-xl);
+        margin: 2rem 0;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-heavy);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
     }
     
+    .recipe-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+        animation: borderGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes borderGlow {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 1; }
+    }
+    
+    /* Advanced macro cards */
     .macro-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 15px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px) saturate(150%);
+        color: var(--text-primary);
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
         text-align: center;
-        margin: 0.5rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        margin: 0.75rem;
+        border: 1px solid var(--glass-border);
+        transition: all var(--transition-medium);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .macro-card:hover {
+        transform: translateY(-5px) scale(1.05);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: var(--shadow-heavy);
     }
     
     .macro-value {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 700;
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
+        color: var(--text-primary);
+        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        margin-bottom: 0.5rem;
     }
     
     .macro-label {
         font-size: 0.9rem;
-        opacity: 0.9;
-        font-family: 'Poppins', sans-serif;
+        color: var(--text-secondary);
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     
-    /* Sidebar styling */
+    /* Advanced sidebar styling */
     .css-1d391kg {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        background: var(--glass-bg);
+        backdrop-filter: blur(25px) saturate(180%);
+        border-right: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-medium);
     }
     
     /* Hide streamlit elements */
@@ -249,20 +485,122 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Animations */
+    /* Revolutionary animations */
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(50px) scale(0.95);
         }
         to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
     }
     
     .fade-in {
-        animation: fadeInUp 0.6s ease-out;
+        animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    /* Advanced scrollbar */
+    ::-webkit-scrollbar {
+        width: 12px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--glass-bg);
+        border-radius: var(--border-radius-sm);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--glass-border);
+        border-radius: var(--border-radius-sm);
+        border: 2px solid var(--glass-bg);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    /* Floating particles with advanced physics */
+    .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        animation: particleFloat 8s infinite linear;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+    
+    @keyframes particleFloat {
+        0% {
+            transform: translateY(100vh) translateX(0) rotate(0deg) scale(0);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+            transform: translateY(90vh) translateX(10px) rotate(36deg) scale(1);
+        }
+        90% {
+            opacity: 1;
+            transform: translateY(10vh) translateX(-10px) rotate(324deg) scale(1);
+        }
+        100% {
+            transform: translateY(-10vh) translateX(0) rotate(360deg) scale(0);
+            opacity: 0;
+        }
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .glass-card {
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .recipe-card {
+            padding: 2rem;
+        }
+    }
+    
+    /* Loading states */
+    .loading {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+        0% { left: -100%; }
+        100% { left: 100%; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -283,12 +621,12 @@ st.markdown("""
 with st.sidebar:
     st.markdown("""
     <div style="text-align: center; padding: 2rem 0;">
-        <h2 style="color: white; font-family: 'Poppins', sans-serif;">🍽️ Chef's Tips</h2>
+        <h2 style="color: white; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 1.8rem; text-shadow: 0 4px 8px rgba(0,0,0,0.3); letter-spacing: 1px;">🍽️ Chef's Tips</h2>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div class="feature-card">
+    <div class="glass-card">
         <div class="feature-icon">🤖</div>
         <div class="feature-title">AI-Powered</div>
         <div class="feature-desc">Advanced Llama-3.1 model creates recipes tailored to your ingredients</div>
@@ -296,7 +634,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div class="feature-card">
+    <div class="glass-card">
         <div class="feature-icon">📊</div>
         <div class="feature-title">USDA Nutrition</div>
         <div class="feature-desc">Accurate macro data from 200,000+ verified food items</div>
@@ -304,7 +642,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div class="feature-card">
+    <div class="glass-card">
         <div class="feature-icon">⚡</div>
         <div class="feature-title">Lightning Fast</div>
         <div class="feature-desc">Get your recipe and nutrition facts in seconds</div>
@@ -369,7 +707,7 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.markdown("""
-    <div class="feature-card fade-in">
+    <div class="glass-card fade-in">
         <div class="feature-icon">🎯</div>
         <div class="feature-title">Personalized</div>
         <div class="feature-desc">Recipes using only YOUR ingredients</div>
@@ -378,7 +716,7 @@ with col1:
 
 with col2:
     st.markdown("""
-    <div class="feature-card fade-in">
+    <div class="glass-card fade-in">
         <div class="feature-icon">🥗</div>
         <div class="feature-title">Healthy Focus</div>
         <div class="feature-desc">Optimized for nutrition and wellness</div>
@@ -387,7 +725,7 @@ with col2:
 
 with col3:
     st.markdown("""
-    <div class="feature-card fade-in">
+    <div class="glass-card fade-in">
         <div class="feature-icon">📱</div>
         <div class="feature-title">Mobile Ready</div>
         <div class="feature-desc">Perfect for kitchen use on any device</div>
@@ -396,25 +734,25 @@ with col3:
 
 with col4:
     st.markdown("""
-    <div class="feature-card fade-in">
+    <div class="glass-card fade-in">
         <div class="feature-icon">💰</div>
         <div class="feature-title">100% Free</div>
         <div class="feature-desc">No subscriptions or hidden costs</div>
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # --- Input Section ---
 st.markdown("""
-<div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin: 2rem 0;">
-    <h3 style="color: #333; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+<div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px) saturate(180%); padding: 2.5rem; border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.15); margin: 2rem 0; box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);">
+    <h3 style="color: white; font-family: 'Space Grotesk', sans-serif; margin-bottom: 1rem; font-weight: 600; font-size: 1.5rem; letter-spacing: 0.5px;">
         🛒 What's in your kitchen today?
     </h3>
 </div>
 """, unsafe_allow_html=True)
 
-default_ing = "chicken breast, quinoa, spinach, olive oil, garlic"
+default_ing = ""
 
 col1, col2 = st.columns([3, 1])
 with col1:
@@ -469,11 +807,11 @@ if run_btn:
     # Display Recipe in a beautiful card
     st.markdown(f"""
     <div class="recipe-card fade-in">
-        <h2 style="color: #667eea; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+        <h2 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 1rem; font-weight: 700; font-size: 2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
             🍽️ {recipe.title}
         </h2>
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem;">
-            <h3 style="margin: 0; font-family: 'Poppins', sans-serif;">
+        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 style="margin: 0; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 1.1rem;">
                 👥 Serves {recipe.servings} people
             </h3>
         </div>
@@ -483,7 +821,7 @@ if run_btn:
     # Ingredients section with styled cards
     st.markdown("""
     <div class="recipe-card fade-in">
-        <h3 style="color: #333; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+        <h3 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.75rem; font-weight: 600; font-size: 1.3rem;">
             🛒 Ingredients & Quantities
         </h3>
     </div>
@@ -496,18 +834,17 @@ if run_btn:
     for idx, ingredient in enumerate(recipe.ingredients_grams):
         with ing_cols[idx % 3]:
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); 
-                        color: white; padding: 1rem; border-radius: 10px; 
-                        text-align: center; margin: 0.5rem 0;">
-                <div style="font-size: 1.5rem; font-weight: bold;">{ingredient.grams}g</div>
-                <div style="font-size: 0.9rem; opacity: 0.9;">{ingredient.name}</div>
+            <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 1.25rem; border-radius: 12px; 
+                        text-align: center; margin: 0.3rem 0; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease;">
+                <div style="font-size: 1.4rem; font-weight: 700; color: white; font-family: 'JetBrains Mono', monospace; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{ingredient.grams}g</div>
+                <div style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.9); font-weight: 500; font-family: 'Inter', sans-serif; margin-top: 0.5rem;">{ingredient.name}</div>
             </div>
             """, unsafe_allow_html=True)
 
     # Cooking steps with enhanced styling
     st.markdown("""
-    <div class="recipe-card fade-in" style="margin-top: 2rem;">
-        <h3 style="color: #333; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+    <div class="recipe-card fade-in" style="margin-top: 1.5rem;">
+        <h3 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.75rem; font-weight: 600; font-size: 1.3rem;">
             👨‍🍳 Cooking Instructions
         </h3>
     </div>
@@ -519,10 +856,9 @@ if run_btn:
         with st.container():
             # Step header
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; padding: 1rem 1.5rem; margin: 1rem 0 0 0; 
-                        border-radius: 15px 15px 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                <div style="font-weight: bold; font-size: 1.1rem; font-family: 'Poppins', sans-serif;">
+            <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 1rem 1.5rem; margin: 1rem 0 0 0; 
+                        border-radius: 16px 16px 0 0; border: 1px solid rgba(255, 255, 255, 0.2);">
+                <div style="font-weight: 600; font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;">
                     🔸 Step {i}
                 </div>
             </div>
@@ -533,10 +869,9 @@ if run_btn:
             step_escaped = html.escape(step)
             
             st.markdown(f"""
-            <div style="background: white; padding: 1.5rem; margin: 0 0 1.5rem 0; 
-                        border-radius: 0 0 15px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                        border: 1px solid #e0e0e0; border-top: none;">
-                <div style="color: #333; font-size: 1rem; line-height: 1.8; font-family: 'Poppins', sans-serif;">
+            <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); padding: 1.5rem; margin: 0 0 1.5rem 0; 
+                        border-radius: 0 0 16px 16px; border: 1px solid rgba(255, 255, 255, 0.2); border-top: none;">
+                <div style="color: rgba(255, 255, 255, 0.9); font-size: 1rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
                     {step_escaped}
                 </div>
             </div>
@@ -549,8 +884,8 @@ if run_btn:
 
     # Macro breakdown by ingredient
     st.markdown("""
-    <div class="recipe-card fade-in" style="margin-top: 2rem;">
-        <h3 style="color: #333; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+    <div class="recipe-card fade-in" style="margin-top: 1.5rem;">
+        <h3 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.75rem; font-weight: 600; font-size: 1.3rem;">
             📊 Nutritional Breakdown by Ingredient
         </h3>
     </div>
@@ -563,6 +898,7 @@ if run_btn:
             'Carbs (g)': '{:.1f}',
             'Fat (g)': '{:.1f}',
             'Fiber (g)': '{:.1f}',
+            'Calories': '{:.0f}',
             'Grams': '{:.0f}'
         }).set_table_styles([
             {'selector': 'th', 'props': [('background-color', '#667eea'), ('color', 'white'), ('font-family', 'Poppins')]},
@@ -581,33 +917,34 @@ if run_btn:
 
     # Total macros with beautiful cards
     st.markdown("""
-    <div class="recipe-card fade-in" style="margin-top: 2rem;">
-        <h3 style="color: #333; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+    <div class="recipe-card fade-in" style="margin-top: 1.5rem;">
+        <h3 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.75rem; font-weight: 600; font-size: 1.3rem;">
             🔢 Total Recipe Nutrition
         </h3>
     </div>
     """, unsafe_allow_html=True)
     
-    macro_cols = st.columns(4)
+    macro_cols = st.columns(5)
     macro_colors = [
         "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
         "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
+        "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+        "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
     ]
     
-    macro_icons = ["💪", "🌾", "🥑", "🌿"]
-    macro_names = ["Protein", "Carbs", "Fat", "Fiber"]
+    macro_icons = ["💪", "🌾", "🥑", "🌿", "🔥"]
+    macro_names = ["Protein", "Carbs", "Fat", "Fiber", "Calories"]
     
     for idx, (key, value) in enumerate(totals.items()):
         with macro_cols[idx]:
             st.markdown(f"""
-            <div style="background: {macro_colors[idx]}; color: white; padding: 1.5rem; 
-                        border-radius: 15px; text-align: center; margin: 0.5rem 0; 
-                        box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                <div style="font-size: 2rem; margin-bottom: 0.5rem;">{macro_icons[idx]}</div>
-                <div style="font-size: 2rem; font-weight: bold; font-family: 'Poppins', sans-serif;">{value}g</div>
-                <div style="font-size: 0.9rem; opacity: 0.9; font-family: 'Poppins', sans-serif;">{macro_names[idx]}</div>
+            <div style="background: #f8fafc; color: #1e293b; padding: 1.25rem; 
+                        border-radius: 8px; text-align: center; margin: 0.5rem 0; 
+                        border: 1px solid #e2e8f0;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">{macro_icons[idx]}</div>
+                <div style="font-size: 1.5rem; font-weight: 600; font-family: 'Inter', sans-serif; color: #0f172a;">{value}g</div>
+                <div style="font-size: 0.8rem; color: #64748b; font-family: 'Inter', sans-serif; font-weight: 500;">{macro_names[idx]}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -615,29 +952,29 @@ if run_btn:
     per_serving = {k: round(v / recipe.servings, 2) for k, v in totals.items()} if recipe.servings else totals
     
     st.markdown("""
-    <div class="recipe-card fade-in" style="margin-top: 2rem;">
-        <h3 style="color: #333; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+    <div class="recipe-card fade-in" style="margin-top: 1.5rem;">
+        <h3 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.75rem; font-weight: 600; font-size: 1.3rem;">
             🥄 Nutrition Per Serving
         </h3>
     </div>
     """, unsafe_allow_html=True)
     
-    serving_cols = st.columns(4)
+    serving_cols = st.columns(5)
     for idx, (key, value) in enumerate(per_serving.items()):
         with serving_cols[idx]:
             st.markdown(f"""
             <div style="background: white; border: 2px solid {macro_colors[idx].split(',')[0].split('(')[1]}; 
-                        padding: 1.5rem; border-radius: 15px; text-align: center; margin: 0.5rem 0;">
-                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">{macro_icons[idx]}</div>
-                <div style="font-size: 1.5rem; font-weight: bold; font-family: 'Poppins', sans-serif; color: #333;">{value}g</div>
-                <div style="font-size: 0.8rem; color: #666; font-family: 'Poppins', sans-serif;">{macro_names[idx]} per serving</div>
+                        padding: 1rem; border-radius: 12px; text-align: center; margin: 0.4rem 0;">
+                <div style="font-size: 1.2rem; margin-bottom: 0.4rem;">{macro_icons[idx]}</div>
+                <div style="font-size: 1.2rem; font-weight: bold; font-family: 'Poppins', sans-serif; color: #333;">{value}g</div>
+                <div style="font-size: 0.75rem; color: #666; font-family: 'Poppins', sans-serif;">{macro_names[idx]} per serving</div>
             </div>
             """, unsafe_allow_html=True)
 
     # Footer note
     st.markdown("""
-    <div style="background: #e8f4f8; border-radius: 10px; padding: 1rem; margin: 2rem 0; text-align: center;">
-        <div style="color: #31708f; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+    <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+        <div style="color: rgba(255, 255, 255, 0.9); font-family: 'Inter', sans-serif; font-size: 0.9rem;">
             📝 <strong>Note:</strong> Nutritional data sourced from USDA FoodData Central. 
             Values are estimates based on generic ingredients and may vary with specific brands or preparation methods.
         </div>
@@ -758,13 +1095,14 @@ if st.session_state.get('show_history', False):
                     # Show nutrition summary
                     if recipe.nutrition_per_serving:
                         st.write("**Nutrition per serving:**")
-                        nut_cols = st.columns(4)
-                        nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)"]
+                        nut_cols = st.columns(5)
+                        nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)", "Calories"]
                         for i, nutrient in enumerate(nutrients):
                             if nutrient in recipe.nutrition_per_serving:
+                                unit = "g" if nutrient != "Calories" else "cal"
                                 nut_cols[i].metric(
                                     nutrient.replace(" (g)", ""), 
-                                    f"{recipe.nutrition_per_serving[nutrient]}g"
+                                    f"{recipe.nutrition_per_serving[nutrient]}{unit}"
                                 )
         else:
             st.info("No recipes found. Generate some recipes first!")
@@ -801,13 +1139,14 @@ if st.session_state.get('show_favorites', False):
                     # Show nutrition
                     if recipe.nutrition_per_serving:
                         st.write("**Nutrition per serving:**")
-                        nut_cols = st.columns(4)
-                        nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)"]
+                        nut_cols = st.columns(5)
+                        nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)", "Calories"]
                         for i, nutrient in enumerate(nutrients):
                             if nutrient in recipe.nutrition_per_serving:
+                                unit = "g" if nutrient != "Calories" else "cal"
                                 nut_cols[i].metric(
                                     nutrient.replace(" (g)", ""), 
-                                    f"{recipe.nutrition_per_serving[nutrient]}g"
+                                    f"{recipe.nutrition_per_serving[nutrient]}{unit}"
                                 )
         else:
             st.info("No favorite recipes yet. Mark some recipes as favorites!")
