@@ -28,22 +28,35 @@ A smart recipe generator that creates personalized healthy recipes from your ava
 
 <img width="1914" height="1068" alt="image" src="https://github.com/user-attachments/assets/4ca49b53-02bc-4344-bbbc-9232182d10ff" />
 
+
 Simply enter your available ingredients (e.g., "chicken breast, quinoa, spinach, olive oil, garlic") and get:
+
 <img width="1887" height="1075" alt="image" src="https://github.com/user-attachments/assets/87e4f4a9-8df6-4f82-848b-6c8bb2e1604b" />
 
+
 1. **Complete Recipe** with cooking instructions
+
 <img width="1915" height="1067" alt="image" src="https://github.com/user-attachments/assets/c3c286fa-f2aa-4f1e-9abd-f54ba65344f8" />
 
+
 2. **Macro Breakdown** per ingredient 
+
 <img width="1912" height="1061" alt="image" src="https://github.com/user-attachments/assets/5c38177a-fb3e-4048-b206-d1a51edaac46" />
 
 3. **Per-Serving Nutrition** for meal planning
+
 <img width="1906" height="1067" alt="image" src="https://github.com/user-attachments/assets/4700c93a-5fc1-48bc-842a-f98a5c57c47d" />
 
 4. **Total Recipe Macros** for batch cooking
+
 5. **Automatic Database Storage** for future reference
+
 6. **Rating & Favorites** system for recipe management
+
 7. **Smart Recipe Filtering** to find recipes by category
+
+
+<img width="1916" height="1069" alt="image" src="https://github.com/user-attachments/assets/7f267b7f-3831-4185-8b21-d30197b31b83" />
 
 ## 🛠️ Installation
 
