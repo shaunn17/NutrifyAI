@@ -16,6 +16,7 @@ A smart recipe generator that creates personalized healthy recipes from your ava
 - **🗄️ Recipe Database**: SQLite database to store, search, and manage your recipes
 - **⭐ Favorites & Ratings**: Rate recipes and save favorites for easy access
 - **📚 Recipe History**: Browse, search, and revisit all your generated recipes
+- **🔍 Recipe Filtering**: Filter recipes by dietary restrictions, cuisine type, meal type, cooking time, and difficulty level
 - **📈 Analytics**: Track your recipe generation stats and success rates
 - **⚡ Fast & Free**: Leverages free APIs for cost-effective operation
 
@@ -29,6 +30,7 @@ Simply enter your available ingredients (e.g., "chicken breast, quinoa, spinach,
 4. **Total Recipe Macros** for batch cooking
 5. **Automatic Database Storage** for future reference
 6. **Rating & Favorites** system for recipe management
+7. **Smart Recipe Filtering** to find recipes by category
 
 ## 🛠️ Installation
 
@@ -110,6 +112,23 @@ For deployment on Streamlit Cloud or other platforms, add your API keys to the p
    - Step-by-step cooking instructions
    - Detailed macro breakdown
 
+### Recipe Filtering & Discovery
+
+After generating recipes, use the **Recipe Filtering & Categories** section to:
+
+1. **Select Filters**: Choose from:
+   - **🥗 Dietary Restrictions**: Vegetarian, Vegan, Keto, Paleo, Mediterranean
+   - **🌍 Cuisine Types**: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai
+   - **🍽️ Meal Types**: Breakfast, Lunch, Dinner, Snacks, Desserts
+   - **⏱️ Cooking Time**: Quick (15min), Medium (30min), Long (60min+)
+   - **📚 Difficulty Level**: Beginner, Intermediate, Advanced
+
+2. **Apply Filters**: Click "Apply Filters" to find matching recipes from your saved collection
+
+3. **Browse Results**: View filtered recipes with ratings, favorites, and nutrition info
+
+**Example**: Filter for "Vegetarian" + "Italian" + "Dinner" + "Medium" + "Beginner" to find all your saved vegetarian Italian dinner recipes that are medium difficulty and beginner-friendly.
+
 ### Example Input/Output
 
 **Input:**
@@ -126,7 +145,8 @@ salmon, sweet potato, broccoli, olive oil, lemon
 
 ```
 ai_recipe_app/
-├── app.py              # Main Streamlit application
+├── app.py              # Main Streamlit application with UI and filtering
+├── database.py         # SQLite database with filtering capabilities
 ├── utils.py            # USDA API integration and macro calculations
 ├── requirements.txt    # Python dependencies
 └── .streamlit/
@@ -135,7 +155,8 @@ ai_recipe_app/
 
 ### Key Components
 
-- **`app.py`**: Main application with Streamlit UI and Groq AI integration
+- **`app.py`**: Main application with Streamlit UI, Groq AI integration, and recipe filtering system
+- **`database.py`**: SQLite database management with filtering and search capabilities
 - **`utils.py`**: USDA FoodData Central API wrapper for nutritional data
 - **Pydantic Models**: Structured data validation for recipes
 - **Error Handling**: Graceful handling of API failures and invalid inputs
@@ -193,8 +214,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔮 Future Enhancements
 
-- [ ] Recipe rating and favorites system
-- [ ] Dietary restriction filters (vegan, keto, etc.)
+- [x] Recipe rating and favorites system ✅
+- [x] Dietary restriction filters (vegan, keto, etc.) ✅
 - [ ] Shopping list generation
 - [ ] Recipe image generation
 - [ ] Meal planning calendar
