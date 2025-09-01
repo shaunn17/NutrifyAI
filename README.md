@@ -1,4 +1,4 @@
-# 🥗 AI-Powered Healthy Recipe & Macro Calculator
+# AI-Powered Healthy Recipe & Macro Calculator
 
 A smart recipe generator that creates personalized healthy recipes from your available ingredients and provides detailed nutritional macro analysis. Built with Streamlit, Groq AI, and USDA FoodData Central API.
 
@@ -196,18 +196,6 @@ graph LR
     E --> F[Final Output]
 ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -239,21 +227,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Check your Groq API key is valid and has remaining quota
 - Ensure internet connection is stable
 
-### Support
-
-If you encounter issues:
-
-1. Check the [troubleshooting section](#troubleshooting)
-2. Search existing [GitHub issues](https://github.com/yourusername/ai-recipe-app/issues)
-3. Create a new issue with detailed error description
-
-## 🙏 Acknowledgments
-
-- [Groq](https://groq.com/) for providing fast AI inference
-- [USDA FoodData Central](https://fdc.nal.usda.gov/) for comprehensive nutritional data
-- [Streamlit](https://streamlit.io/) for the amazing web app framework
-- The open-source community for inspiration and tools
-
----
-
-**Made with ❤️ for healthy cooking and smart nutrition**
