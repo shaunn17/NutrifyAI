@@ -18,6 +18,11 @@ class Recipe:
     rating: Optional[int] = None
     is_favorite: bool = False
     tags: List[str] = None
+    dietary_restriction: Optional[str] = None
+    cuisine_type: Optional[str] = None
+    meal_type: Optional[str] = None
+    cooking_time: Optional[str] = None
+    difficulty_level: Optional[str] = None
 
 class RecipeDatabase:
     def __init__(self, db_path: str = "recipes.db"):
@@ -42,7 +47,12 @@ class RecipeDatabase:
                 created_at TEXT NOT NULL,
                 rating INTEGER,
                 is_favorite BOOLEAN DEFAULT FALSE,
-                tags TEXT  -- JSON string
+                tags TEXT,  -- JSON string
+                dietary_restriction TEXT,
+                cuisine_type TEXT,
+                meal_type TEXT,
+                cooking_time TEXT,
+                difficulty_level TEXT
             )
         ''')
         
@@ -69,12 +79,44 @@ class RecipeDatabase:
             )
         ''')
         
+        # Upgrade existing database to add new columns if they don't exist
+        self._upgrade_database(cursor)
+        
         conn.commit()
         conn.close()
     
+    def _upgrade_database(self, cursor):
+        """Add new columns to existing database if they don't exist."""
+        try:
+            cursor.execute('ALTER TABLE recipes ADD COLUMN dietary_restriction TEXT')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        
+        try:
+            cursor.execute('ALTER TABLE recipes ADD COLUMN cuisine_type TEXT')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        
+        try:
+            cursor.execute('ALTER TABLE recipes ADD COLUMN meal_type TEXT')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        
+        try:
+            cursor.execute('ALTER TABLE recipes ADD COLUMN cooking_time TEXT')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        
+        try:
+            cursor.execute('ALTER TABLE recipes ADD COLUMN difficulty_level TEXT')
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+    
     def save_recipe(self, title: str, servings: int, ingredients: List[Dict], 
                    steps: List[str], nutrition_per_recipe: Dict[str, float], 
-                   nutrition_per_serving: Dict[str, float], tags: List[str] = None) -> str:
+                   nutrition_per_serving: Dict[str, float], tags: List[str] = None,
+                   dietary_restriction: str = None, cuisine_type: str = None,
+                   meal_type: str = None, cooking_time: str = None, difficulty_level: str = None) -> str:
         """Save a recipe to the database and return the recipe ID."""
         recipe_id = str(uuid.uuid4())
         created_at = datetime.datetime.now().isoformat()
@@ -86,8 +128,9 @@ class RecipeDatabase:
             INSERT INTO recipes (
                 id, title, servings, ingredients, steps, 
                 nutrition_per_recipe, nutrition_per_serving, 
-                created_at, tags
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                created_at, tags, dietary_restriction, cuisine_type,
+                meal_type, cooking_time, difficulty_level
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             recipe_id,
             title,
@@ -97,7 +140,12 @@ class RecipeDatabase:
             json.dumps(nutrition_per_recipe),
             json.dumps(nutrition_per_serving),
             created_at,
-            json.dumps(tags or [])
+            json.dumps(tags or []),
+            dietary_restriction,
+            cuisine_type,
+            meal_type,
+            cooking_time,
+            difficulty_level
         ))
         
         conn.commit()
@@ -129,7 +177,12 @@ class RecipeDatabase:
             created_at=row[7],
             rating=row[8],
             is_favorite=bool(row[9]),
-            tags=json.loads(row[10]) if row[10] else []
+            tags=json.loads(row[10]) if row[10] else [],
+            dietary_restriction=row[11] if len(row) > 11 else None,
+            cuisine_type=row[12] if len(row) > 12 else None,
+            meal_type=row[13] if len(row) > 13 else None,
+            cooking_time=row[14] if len(row) > 14 else None,
+            difficulty_level=row[15] if len(row) > 15 else None
         )
     
     def get_all_recipes(self, limit: int = 50, offset: int = 0) -> List[Recipe]:
@@ -159,7 +212,12 @@ class RecipeDatabase:
                 created_at=row[7],
                 rating=row[8],
                 is_favorite=bool(row[9]),
-                tags=json.loads(row[10]) if row[10] else []
+                tags=json.loads(row[10]) if row[10] else [],
+                dietary_restriction=row[11] if len(row) > 11 else None,
+                cuisine_type=row[12] if len(row) > 12 else None,
+                meal_type=row[13] if len(row) > 13 else None,
+                cooking_time=row[14] if len(row) > 14 else None,
+                difficulty_level=row[15] if len(row) > 15 else None
             ))
         
         return recipes
@@ -192,7 +250,12 @@ class RecipeDatabase:
                 created_at=row[7],
                 rating=row[8],
                 is_favorite=bool(row[9]),
-                tags=json.loads(row[10]) if row[10] else []
+                tags=json.loads(row[10]) if row[10] else [],
+                dietary_restriction=row[11] if len(row) > 11 else None,
+                cuisine_type=row[12] if len(row) > 12 else None,
+                meal_type=row[13] if len(row) > 13 else None,
+                cooking_time=row[14] if len(row) > 14 else None,
+                difficulty_level=row[15] if len(row) > 15 else None
             ))
         
         return recipes
@@ -265,7 +328,12 @@ class RecipeDatabase:
                 created_at=row[7],
                 rating=row[8],
                 is_favorite=bool(row[9]),
-                tags=json.loads(row[10]) if row[10] else []
+                tags=json.loads(row[10]) if row[10] else [],
+                dietary_restriction=row[11] if len(row) > 11 else None,
+                cuisine_type=row[12] if len(row) > 12 else None,
+                meal_type=row[13] if len(row) > 13 else None,
+                cooking_time=row[14] if len(row) > 14 else None,
+                difficulty_level=row[15] if len(row) > 15 else None
             ))
         
         return recipes
@@ -340,3 +408,101 @@ class RecipeDatabase:
         conn.close()
         
         return success
+    
+    def filter_recipes(self, dietary_restriction: str = None, cuisine_type: str = None,
+                      meal_type: str = None, cooking_time: str = None, 
+                      difficulty_level: str = None, limit: int = 50) -> List[Recipe]:
+        """Filter recipes by various criteria."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # Build the WHERE clause dynamically
+        conditions = []
+        params = []
+        
+        if dietary_restriction:
+            conditions.append('dietary_restriction = ?')
+            params.append(dietary_restriction)
+        
+        if cuisine_type:
+            conditions.append('cuisine_type = ?')
+            params.append(cuisine_type)
+        
+        if meal_type:
+            conditions.append('meal_type = ?')
+            params.append(meal_type)
+        
+        if cooking_time:
+            conditions.append('cooking_time = ?')
+            params.append(cooking_time)
+        
+        if difficulty_level:
+            conditions.append('difficulty_level = ?')
+            params.append(difficulty_level)
+        
+        where_clause = ' AND '.join(conditions) if conditions else '1=1'
+        
+        query = f'''
+            SELECT * FROM recipes 
+            WHERE {where_clause}
+            ORDER BY created_at DESC 
+            LIMIT ?
+        '''
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        conn.close()
+        
+        recipes = []
+        for row in rows:
+            recipes.append(Recipe(
+                id=row[0],
+                title=row[1],
+                servings=row[2],
+                ingredients=json.loads(row[3]),
+                steps=json.loads(row[4]),
+                nutrition_per_recipe=json.loads(row[5]),
+                nutrition_per_serving=json.loads(row[6]),
+                created_at=row[7],
+                rating=row[8],
+                is_favorite=bool(row[9]),
+                tags=json.loads(row[10]) if row[10] else [],
+                dietary_restriction=row[11] if len(row) > 11 else None,
+                cuisine_type=row[12] if len(row) > 12 else None,
+                meal_type=row[13] if len(row) > 13 else None,
+                cooking_time=row[14] if len(row) > 14 else None,
+                difficulty_level=row[15] if len(row) > 15 else None
+            ))
+        
+        return recipes
+    
+    def get_available_categories(self) -> Dict[str, List[str]]:
+        """Get all available categories for filtering."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        categories = {}
+        
+        # Get dietary restrictions
+        cursor.execute('SELECT DISTINCT dietary_restriction FROM recipes WHERE dietary_restriction IS NOT NULL')
+        categories['dietary_restrictions'] = [row[0] for row in cursor.fetchall()]
+        
+        # Get cuisine types
+        cursor.execute('SELECT DISTINCT cuisine_type FROM recipes WHERE cuisine_type IS NOT NULL')
+        categories['cuisine_types'] = [row[0] for row in cursor.fetchall()]
+        
+        # Get meal types
+        cursor.execute('SELECT DISTINCT meal_type FROM recipes WHERE meal_type IS NOT NULL')
+        categories['meal_types'] = [row[0] for row in cursor.fetchall()]
+        
+        # Get cooking times
+        cursor.execute('SELECT DISTINCT cooking_time FROM recipes WHERE cooking_time IS NOT NULL')
+        categories['cooking_times'] = [row[0] for row in cursor.fetchall()]
+        
+        # Get difficulty levels
+        cursor.execute('SELECT DISTINCT difficulty_level FROM recipes WHERE difficulty_level IS NOT NULL')
+        categories['difficulty_levels'] = [row[0] for row in cursor.fetchall()]
+        
+        conn.close()
+        return categories

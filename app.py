@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 from groq import Groq
 from pydantic import BaseModel, Field, ValidationError
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from utils import compute_macros
 from database import RecipeDatabase
 
@@ -41,6 +41,11 @@ class RecipeOut(BaseModel):
     servings: int = Field(..., ge=1, le=12)
     ingredients_grams: List[IngredientOut]
     steps: List[str]
+    dietary_restriction: Optional[str] = None
+    cuisine_type: Optional[str] = None
+    meal_type: Optional[str] = None
+    cooking_time: Optional[str] = None
+    difficulty_level: Optional[str] = None
 
 # --- Helper to call Groq ---
 def generate_recipe_json(ingredients: List[str]) -> RecipeOut:
@@ -53,7 +58,12 @@ def generate_recipe_json(ingredients: List[str]) -> RecipeOut:
     system_msg = (
         "You are a nutritionist-chef. Create a healthy, tasty recipe ONLY with the ingredients provided. "
         "Return STRICT JSON with keys: title (string), servings (int 1-12), "
-        "ingredients_grams (list of objects {name, grams}), and steps (list of strings). "
+        "ingredients_grams (list of objects {name, grams}), steps (list of strings), "
+        "dietary_restriction (string: Vegetarian, Vegan, Keto, Paleo, Mediterranean, or None), "
+        "cuisine_type (string: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai, or None), "
+        "meal_type (string: Breakfast, Lunch, Dinner, Snacks, Desserts), "
+        "cooking_time (string: Quick (15min), Medium (30min), Long (60min+)), "
+        "difficulty_level (string: Beginner, Intermediate, Advanced). "
         "All ingredient quantities MUST have grams; estimate sensible amounts. "
         "Do not add ingredients not provided, except basic salt/pepper which you may exclude from macros."
     )
@@ -817,6 +827,59 @@ if run_btn:
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # Display category badges
+    if recipe.dietary_restriction or recipe.cuisine_type or recipe.meal_type or recipe.cooking_time or recipe.difficulty_level:
+        st.markdown("""
+        <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h4 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.5rem; font-weight: 600; font-size: 1rem;">
+                🏷️ Recipe Categories
+            </h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Create category badges
+        col1, col2, col3, col4, col5 = st.columns(5)
+        
+        with col1:
+            if recipe.dietary_restriction:
+                st.markdown(f"""
+                <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 0.5rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div style="font-size: 0.8rem; font-weight: 600; font-family: 'Inter', sans-serif;">🥗 {recipe.dietary_restriction}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        with col2:
+            if recipe.cuisine_type:
+                st.markdown(f"""
+                <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 0.5rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div style="font-size: 0.8rem; font-weight: 600; font-family: 'Inter', sans-serif;">🌍 {recipe.cuisine_type}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        with col3:
+            if recipe.meal_type:
+                st.markdown(f"""
+                <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 0.5rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div style="font-size: 0.8rem; font-weight: 600; font-family: 'Inter', sans-serif;">🍽️ {recipe.meal_type}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        with col4:
+            if recipe.cooking_time:
+                st.markdown(f"""
+                <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 0.5rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div style="font-size: 0.8rem; font-weight: 600; font-family: 'Inter', sans-serif;">⏱️ {recipe.cooking_time}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        with col5:
+            if recipe.difficulty_level:
+                st.markdown(f"""
+                <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); color: white; padding: 0.5rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div style="font-size: 0.8rem; font-weight: 600; font-family: 'Inter', sans-serif;">📚 {recipe.difficulty_level}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
     # Ingredients section with styled cards
     st.markdown("""
@@ -990,7 +1053,12 @@ if run_btn:
             ingredients=ingredients_for_db,
             steps=recipe.steps,
             nutrition_per_recipe=totals,
-            nutrition_per_serving=per_serving
+            nutrition_per_serving=per_serving,
+            dietary_restriction=recipe.dietary_restriction,
+            cuisine_type=recipe.cuisine_type,
+            meal_type=recipe.meal_type,
+            cooking_time=recipe.cooking_time,
+            difficulty_level=recipe.difficulty_level
         )
         
         # Log successful generation
@@ -1042,6 +1110,119 @@ if run_btn:
     st.session_state.recipe_generated = True
     st.balloons()
 
+# --- Recipe Filtering Section ---
+st.markdown("---")
+st.markdown("## 🔍 Recipe Filtering & Categories")
+
+# Define available categories
+dietary_options = ["All", "Vegetarian", "Vegan", "Keto", "Paleo", "Mediterranean"]
+cuisine_options = ["All", "Italian", "Asian", "Mexican", "Mediterranean", "American", "Indian", "French", "Thai"]
+meal_options = ["All", "Breakfast", "Lunch", "Dinner", "Snacks", "Desserts"]
+time_options = ["All", "Quick (15min)", "Medium (30min)", "Long (60min+)"]
+difficulty_options = ["All", "Beginner", "Intermediate", "Advanced"]
+
+# Create filter columns
+col1, col2, col3 = st.columns(3)
+col4, col5 = st.columns(2)
+
+with col1:
+    selected_dietary = st.selectbox("🥗 Dietary Restriction", dietary_options)
+    
+with col2:
+    selected_cuisine = st.selectbox("🌍 Cuisine Type", cuisine_options)
+    
+with col3:
+    selected_meal = st.selectbox("🍽️ Meal Type", meal_options)
+    
+with col4:
+    selected_time = st.selectbox("⏱️ Cooking Time", time_options)
+    
+with col5:
+    selected_difficulty = st.selectbox("📚 Difficulty Level", difficulty_options)
+
+# Apply filters
+if st.button("🔍 Apply Filters", type="primary"):
+    # Convert "All" selections to None for database query
+    dietary_filter = None if selected_dietary == "All" else selected_dietary
+    cuisine_filter = None if selected_cuisine == "All" else selected_cuisine
+    meal_filter = None if selected_meal == "All" else selected_meal
+    time_filter = None if selected_time == "All" else selected_time
+    difficulty_filter = None if selected_difficulty == "All" else selected_difficulty
+    
+    # Get filtered recipes
+    filtered_recipes = db.filter_recipes(
+        dietary_restriction=dietary_filter,
+        cuisine_type=cuisine_filter,
+        meal_type=meal_filter,
+        cooking_time=time_filter,
+        difficulty_level=difficulty_filter
+    )
+    
+    if filtered_recipes:
+        st.success(f"Found {len(filtered_recipes)} recipe(s) matching your criteria!")
+        
+        # Display filtered recipes
+        for recipe in filtered_recipes:
+            with st.expander(f"🍽️ {recipe.title} - {recipe.meal_type or 'Meal'}"):
+                col1, col2, col3 = st.columns([2, 1, 1])
+                
+                with col1:
+                    st.write(f"**Servings:** {recipe.servings}")
+                    st.write(f"**Ingredients:** {', '.join([ing['name'] for ing in recipe.ingredients])}")
+                    
+                    # Display category badges
+                    if recipe.dietary_restriction or recipe.cuisine_type or recipe.meal_type or recipe.cooking_time or recipe.difficulty_level:
+                        st.write("**Categories:**")
+                        badges = []
+                        if recipe.dietary_restriction:
+                            badges.append(f"🥗 {recipe.dietary_restriction}")
+                        if recipe.cuisine_type:
+                            badges.append(f"🌍 {recipe.cuisine_type}")
+                        if recipe.meal_type:
+                            badges.append(f"🍽️ {recipe.meal_type}")
+                        if recipe.cooking_time:
+                            badges.append(f"⏱️ {recipe.cooking_time}")
+                        if recipe.difficulty_level:
+                            badges.append(f"📚 {recipe.difficulty_level}")
+                        
+                        st.markdown(" ".join([f"`{badge}`" for badge in badges]))
+                
+                with col2:
+                    # Rating system
+                    current_rating = recipe.rating or 0
+                    rating = st.selectbox(
+                        "Rate this recipe:",
+                        options=[0, 1, 2, 3, 4, 5],
+                        index=current_rating,
+                        key=f"filter_rating_{recipe.id}"
+                    )
+                    if rating != current_rating and rating > 0:
+                        if db.update_recipe_rating(recipe.id, rating):
+                            st.success("Rating updated!")
+                
+                with col3:
+                    # Favorite toggle
+                    fav_text = "💖 Unfavorite" if recipe.is_favorite else "🤍 Favorite"
+                    if st.button(fav_text, key=f"filter_fav_{recipe.id}"):
+                        if db.toggle_favorite(recipe.id):
+                            st.success("Favorite status updated!")
+                            st.rerun()
+                
+                # Show nutrition summary
+                if recipe.nutrition_per_serving:
+                    st.write("**Nutrition per serving:**")
+                    nut_cols = st.columns(5)
+                    nutrients = ["Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)", "Calories"]
+                    for i, nutrient in enumerate(nutrients):
+                        if nutrient in recipe.nutrition_per_serving:
+                            unit = "g" if nutrient != "Calories" else "cal"
+                            nut_cols[i].metric(
+                                nutrient.replace(" (g)", ""), 
+                                f"{recipe.nutrition_per_serving[nutrient]}{unit}"
+                            )
+    else:
+        st.info("No recipes found matching your criteria. Try adjusting your filters or generate some new recipes!")
+
 # Recipe History and Favorites Sections
 if st.session_state.get('show_history', False):
     st.markdown("---")
@@ -1070,6 +1251,23 @@ if st.session_state.get('show_history', False):
                     with col1:
                         st.write(f"**Servings:** {recipe.servings}")
                         st.write(f"**Ingredients:** {', '.join([ing['name'] for ing in recipe.ingredients])}")
+                        
+                        # Display category badges
+                        if recipe.dietary_restriction or recipe.cuisine_type or recipe.meal_type or recipe.cooking_time or recipe.difficulty_level:
+                            st.write("**Categories:**")
+                            badges = []
+                            if recipe.dietary_restriction:
+                                badges.append(f"🥗 {recipe.dietary_restriction}")
+                            if recipe.cuisine_type:
+                                badges.append(f"🌍 {recipe.cuisine_type}")
+                            if recipe.meal_type:
+                                badges.append(f"🍽️ {recipe.meal_type}")
+                            if recipe.cooking_time:
+                                badges.append(f"⏱️ {recipe.cooking_time}")
+                            if recipe.difficulty_level:
+                                badges.append(f"📚 {recipe.difficulty_level}")
+                            
+                            st.markdown(" ".join([f"`{badge}`" for badge in badges]))
                     
                     with col2:
                         # Rating system
@@ -1130,6 +1328,23 @@ if st.session_state.get('show_favorites', False):
                     st.write(f"**Created:** {recipe.created_at[:10]}")
                     st.write(f"**Servings:** {recipe.servings}")
                     st.write(f"**Ingredients:** {', '.join([ing['name'] for ing in recipe.ingredients])}")
+                    
+                    # Display category badges
+                    if recipe.dietary_restriction or recipe.cuisine_type or recipe.meal_type or recipe.cooking_time or recipe.difficulty_level:
+                        st.write("**Categories:**")
+                        badges = []
+                        if recipe.dietary_restriction:
+                            badges.append(f"🥗 {recipe.dietary_restriction}")
+                        if recipe.cuisine_type:
+                            badges.append(f"🌍 {recipe.cuisine_type}")
+                        if recipe.meal_type:
+                            badges.append(f"🍽️ {recipe.meal_type}")
+                        if recipe.cooking_time:
+                            badges.append(f"⏱️ {recipe.cooking_time}")
+                        if recipe.difficulty_level:
+                            badges.append(f"📚 {recipe.difficulty_level}")
+                        
+                        st.markdown(" ".join([f"`{badge}`" for badge in badges]))
                     
                     # Show steps
                     st.write("**Cooking Steps:**")
