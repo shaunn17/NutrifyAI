@@ -1,10 +1,14 @@
-# 🥗 AI-Powered Healthy Recipe & Macro Calculator
+# AI-Powered Healthy Recipe & Macro Calculator
 
 A smart recipe generator that creates personalized healthy recipes from your available ingredients and provides detailed nutritional macro analysis. Built with Streamlit, Groq AI, and USDA FoodData Central API.
 
 ![Python](https://img.shields.io/badge/python-v3.7+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-latest-red.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+
+<img width="1908" height="1073" alt="image" src="https://github.com/user-attachments/assets/76f82336-8741-4427-bc4d-63161901bf21" />
+
 
 ## ✨ Features
 
@@ -22,15 +26,37 @@ A smart recipe generator that creates personalized healthy recipes from your ava
 
 ## 🚀 Demo
 
+<img width="1914" height="1068" alt="image" src="https://github.com/user-attachments/assets/4ca49b53-02bc-4344-bbbc-9232182d10ff" />
+
+
 Simply enter your available ingredients (e.g., "chicken breast, quinoa, spinach, olive oil, garlic") and get:
 
+<img width="1887" height="1075" alt="image" src="https://github.com/user-attachments/assets/87e4f4a9-8df6-4f82-848b-6c8bb2e1604b" />
+
+
 1. **Complete Recipe** with cooking instructions
+
+<img width="1915" height="1067" alt="image" src="https://github.com/user-attachments/assets/c3c286fa-f2aa-4f1e-9abd-f54ba65344f8" />
+
+
 2. **Macro Breakdown** per ingredient 
+
+<img width="1912" height="1061" alt="image" src="https://github.com/user-attachments/assets/5c38177a-fb3e-4048-b206-d1a51edaac46" />
+
 3. **Per-Serving Nutrition** for meal planning
+
+<img width="1906" height="1067" alt="image" src="https://github.com/user-attachments/assets/4700c93a-5fc1-48bc-842a-f98a5c57c47d" />
+
 4. **Total Recipe Macros** for batch cooking
+
 5. **Automatic Database Storage** for future reference
+
 6. **Rating & Favorites** system for recipe management
+
 7. **Smart Recipe Filtering** to find recipes by category
+
+
+<img width="1916" height="1069" alt="image" src="https://github.com/user-attachments/assets/7f267b7f-3831-4185-8b21-d30197b31b83" />
 
 ## 🛠️ Installation
 
@@ -196,18 +222,6 @@ graph LR
     E --> F[Final Output]
 ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -239,21 +253,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Check your Groq API key is valid and has remaining quota
 - Ensure internet connection is stable
 
-### Support
-
-If you encounter issues:
-
-1. Check the [troubleshooting section](#troubleshooting)
-2. Search existing [GitHub issues](https://github.com/yourusername/ai-recipe-app/issues)
-3. Create a new issue with detailed error description
-
-## 🙏 Acknowledgments
-
-- [Groq](https://groq.com/) for providing fast AI inference
-- [USDA FoodData Central](https://fdc.nal.usda.gov/) for comprehensive nutritional data
-- [Streamlit](https://streamlit.io/) for the amazing web app framework
-- The open-source community for inspiration and tools
-
----
-
-**Made with ❤️ for healthy cooking and smart nutrition**
