@@ -796,8 +796,17 @@ with st.sidebar:
     
     # Database Statistics
     st.markdown("### 📊 **Your Recipe Stats**")
-    try:
+    
+    # Get fresh stats if needed
+    if st.session_state.get('stats_need_refresh', False):
+        # Create fresh database connection for updated stats
+        fresh_db = RecipeDatabase()
+        stats = fresh_db.get_recipe_stats()
+        st.session_state.stats_need_refresh = False  # Reset flag
+    else:
         stats = db.get_recipe_stats()
+    
+    try:
         col1, col2 = st.columns(2)
         
         with col1:
@@ -1180,7 +1189,10 @@ if run_btn:
             missing_ingredients.append(orig_ing)
     
     if missing_ingredients:
-        quality_issues.append(f"⚠️ Missing ingredients: {', '.join(missing_ingredients)}")
+        # Create helpful message for missing ingredients
+        missing_list = ', '.join(missing_ingredients)
+        quality_issues.append(f"⚠️ **Ingredients not used in recipe:** {missing_list}")
+        quality_issues.append("💡 **Tip:** Check spelling (e.g., 'broccoli' not 'brocoli') or try simpler ingredient names")
         quality_score -= 20
     
     # Check serving size
@@ -1188,15 +1200,15 @@ if run_btn:
     if recipe.servings > 0:
         grams_per_serving = total_grams / recipe.servings
         if grams_per_serving < 150:
-            quality_issues.append("⚠️ Serving size may be too small")
+            quality_issues.append("⚠️ **Serving size may be too small** - Consider reducing the number of servings")
             quality_score -= 10
         elif grams_per_serving > 800:
-            quality_issues.append("⚠️ Serving size may be too large")
+            quality_issues.append("⚠️ **Serving size may be too large** - Consider increasing the number of servings")
             quality_score -= 10
     
     # Check cooking instructions
     if len(recipe.steps) < 3:
-        quality_issues.append("⚠️ Cooking instructions could be more detailed")
+        quality_issues.append("⚠️ **Cooking instructions could be more detailed** - Try regenerating for more comprehensive steps")
         quality_score -= 15
     
     # Display quality feedback
@@ -1204,9 +1216,10 @@ if run_btn:
     
     with col1:
         if quality_issues:
-            st.warning("**Recipe Quality Issues Found:**")
+            st.warning("**🔍 Recipe Quality Analysis:**")
             for issue in quality_issues:
                 st.write(f"• {issue}")
+            st.info("💡 **Need help?** Try regenerating with corrected spelling or simpler ingredient names for better results.")
         else:
             st.success("✅ **Recipe looks great!** All quality checks passed.")
     
@@ -1275,6 +1288,9 @@ if run_btn:
             if rating > 0:
                 if db.update_recipe_rating(recipe_id, rating):
                     st.success(f"Rated {rating}/5 ⭐")
+                    # Set flag to force stats refresh
+                    st.session_state.stats_need_refresh = True
+                    st.rerun()
         
         with col3:
             if st.button("🤍 Add to Favorites", key="add_favorite"):
@@ -1383,6 +1399,9 @@ if st.button("🔍 Apply Filters", type="primary"):
                     if rating != current_rating and rating > 0:
                         if db.update_recipe_rating(recipe.id, rating):
                             st.success("Rating updated!")
+                            # Set flag to force stats refresh
+                            st.session_state.stats_need_refresh = True
+                            st.rerun()
                 
                 with col3:
                     # Favorite toggle
@@ -1465,6 +1484,9 @@ if st.session_state.get('show_history', False):
                         if rating != current_rating and rating > 0:
                             if db.update_recipe_rating(recipe.id, rating):
                                 st.success("Rating updated!")
+                                # Set flag to force stats refresh
+                                st.session_state.stats_need_refresh = True
+                                st.rerun()
                     
                     with col3:
                         # Favorite toggle
