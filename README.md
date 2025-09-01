@@ -6,6 +6,10 @@ A smart recipe generator that creates personalized healthy recipes from your ava
 ![Streamlit](https://img.shields.io/badge/streamlit-latest-red.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
+
+<img width="1908" height="1073" alt="image" src="https://github.com/user-attachments/assets/76f82336-8741-4427-bc4d-63161901bf21" />
+
+
 ## ✨ Features
 
 - **🤖 AI Recipe Generation**: Uses Groq's Llama-3.1 model to create customized recipes from your ingredients
