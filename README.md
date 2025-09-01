@@ -1,76 +1,64 @@
-# AI-Powered Healthy Recipe & Macro Calculator
+# 🥗 NutrifyAI - AI-Powered Healthy Recipe & Macro Calculator
 
-A smart recipe generator that creates personalized healthy recipes from your available ingredients and provides detailed nutritional macro analysis. Built with Streamlit, Groq AI, and USDA FoodData Central API.
+A sophisticated Streamlit web application that generates personalized healthy recipes from available ingredients and provides detailed nutritional analysis. Built with advanced AI, modern UI design, and comprehensive recipe management features.
 
 ![Python](https://img.shields.io/badge/python-v3.7+-blue.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-latest-red.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![AI](https://img.shields.io/badge/AI-Llama--3.1--8B--Instant-purple.svg)
 
+## ✨ Key Features
 
-<img width="1908" height="1073" alt="image" src="https://github.com/user-attachments/assets/76f82336-8741-4427-bc4d-63161901bf21" />
+### 🤖 **AI-Powered Recipe Generation**
+- **Advanced AI Model**: Uses Groq's Llama-3.1-8B-Instant for intelligent recipe creation
+- **Structured Output**: Pydantic validation ensures consistent, high-quality recipe data
+- **Ingredient-Only Recipes**: Creates recipes using ONLY the ingredients you provide
+- **Smart Prompting**: Optimized prompts for culinary realism and nutritional balance
 
+### 📊 **Comprehensive Nutritional Analysis**
+- **USDA Integration**: Fetches accurate macro data from 200,000+ verified food items
+- **Detailed Breakdown**: Protein, carbs, fat, fiber, and calories per ingredient
+- **Per-Serving & Total Macros**: Complete nutritional analysis for meal planning
+- **Real-time Calculations**: Instant macro scaling based on ingredient quantities
 
-## ✨ Features
+### 🎨 **Modern User Experience**
+- **Glassmorphism Design**: Beautiful, modern UI with advanced CSS animations
+- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices
+- **Interactive Elements**: Hover effects, smooth transitions, and visual feedback
+- **Intuitive Navigation**: Clean, organized interface with helpful tooltips
 
-- **🤖 AI Recipe Generation**: Uses Groq's Llama-3.1-8B-Instant model to create customized recipes from your ingredients
-- **📊 Nutritional Analysis**: Fetches accurate macro data (protein, carbs, fat, fiber) from USDA FoodData Central
-- **🍽️ Smart Portioning**: Calculates macros per serving and total recipe
-- **🎯 Ingredient-Only Recipes**: Creates recipes using ONLY the ingredients you provide
-- **📱 Clean UI**: Modern, responsive Streamlit interface with beautiful animations
-- **🗄️ Recipe Database**: SQLite database to store, search, and manage your recipes
-- **⭐ Favorites & Ratings**: Rate recipes and save favorites for easy access
-- **📚 Recipe History**: Browse, search, and revisit all your generated recipes
-- **🔍 Recipe Filtering**: Filter recipes by dietary restrictions, cuisine type, meal type, cooking time, and difficulty level
-- **📈 Analytics**: Track your recipe generation stats and success rates
-- **⚡ Fast & Free**: Leverages free APIs for cost-effective operation
+### 🗄️ **Advanced Recipe Management**
+- **SQLite Database**: Persistent storage with comprehensive recipe metadata
+- **Smart Filtering**: Filter by dietary restrictions, cuisine, meal type, cooking time, and difficulty
+- **Search Functionality**: Find recipes by title or ingredients
+- **Rating System**: 5-star rating system with real-time statistics
+- **Favorites Management**: Save and organize your preferred recipes
 
-## 🚀 Demo
+### 🔍 **Quality Assurance & Analytics**
+- **Recipe Quality Scoring**: Automatic validation with helpful feedback
+- **Ingredient Usage Verification**: Ensures all provided ingredients are used
+- **Spelling Suggestions**: Intelligent error detection with correction tips
+- **Success Rate Tracking**: Monitor recipe generation performance
+- **User Statistics**: Track total recipes, favorites, and average ratings
 
-<img width="1914" height="1068" alt="image" src="https://github.com/user-attachments/assets/4ca49b53-02bc-4344-bbbc-9232182d10ff" />
+### ⚡ **Performance & Reliability**
+- **Fast AI Inference**: Leverages Groq's ultra-fast hardware for quick responses
+- **Error Handling**: Graceful fallbacks and user-friendly error messages
+- **Caching System**: Optimized database connections for better performance
+- **Free APIs**: Cost-effective operation using generous free tiers
 
-
-Simply enter your available ingredients (e.g., "chicken breast, quinoa, spinach, olive oil, garlic") and get:
-
-<img width="1887" height="1075" alt="image" src="https://github.com/user-attachments/assets/87e4f4a9-8df6-4f82-848b-6c8bb2e1604b" />
-
-
-1. **Complete Recipe** with cooking instructions
-
-<img width="1915" height="1067" alt="image" src="https://github.com/user-attachments/assets/c3c286fa-f2aa-4f1e-9abd-f54ba65344f8" />
-
-
-2. **Macro Breakdown** per ingredient 
-
-<img width="1912" height="1061" alt="image" src="https://github.com/user-attachments/assets/5c38177a-fb3e-4048-b206-d1a51edaac46" />
-
-3. **Per-Serving Nutrition** for meal planning
-
-<img width="1906" height="1067" alt="image" src="https://github.com/user-attachments/assets/4700c93a-5fc1-48bc-842a-f98a5c57c47d" />
-
-4. **Total Recipe Macros** for batch cooking
-
-5. **Automatic Database Storage** for future reference
-
-6. **Rating & Favorites** system for recipe management
-
-7. **Smart Recipe Filtering** to find recipes by category
-
-
-<img width="1916" height="1069" alt="image" src="https://github.com/user-attachments/assets/7f267b7f-3831-4185-8b21-d30197b31b83" />
-
-## 🛠️ Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Python 3.7 or higher
 - Free API keys from Groq and USDA
 
-### Quick Start
+### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/ai-recipe-app.git
-   cd ai-recipe-app
+   git clone https://github.com/shaunn17/NutrifyAI.git
+   cd NutrifyAI
    ```
 
 2. **Install dependencies**
@@ -103,57 +91,48 @@ Simply enter your available ingredients (e.g., "chicken breast, quinoa, spinach,
 
 The app will open in your browser at `http://localhost:8501`
 
-## 🔧 Configuration
+## 📖 Usage Guide
 
-### Environment Variables (Alternative)
-
-Instead of using `secrets.toml`, you can set environment variables:
-
-```bash
-export GROQ_API_KEY="your_groq_api_key_here"
-export USDA_API_KEY="your_usda_api_key_here"
-```
-
-### Deployment
-
-For deployment on Streamlit Cloud or other platforms, add your API keys to the platform's secrets management:
-
-- `groq_api_key`: Your Groq API key
-- `usda_api_key`: Your USDA API key
-
-## 📖 Usage
-
-### Basic Usage
+### Basic Recipe Generation
 
 1. **Enter Ingredients**: Type your available ingredients separated by commas
    ```
    chicken breast, quinoa, spinach, olive oil, garlic
    ```
 
-2. **Generate Recipe**: Click "Generate Recipe" to get your AI-created recipe
+2. **Generate Recipe**: Click "🚀 Create My Recipe" to get your AI-created recipe
 
 3. **Review Results**: 
-   - Recipe title and serving size
+   - Complete recipe with cooking instructions
    - Ingredient quantities in grams
-   - Step-by-step cooking instructions
-   - Detailed macro breakdown
+   - Detailed macro breakdown per ingredient
+   - Per-serving and total nutrition information
 
-### Recipe Filtering & Discovery
+### Advanced Features
 
-After generating recipes, use the **Recipe Filtering & Categories** section to:
+#### 🎲 **Surprise Me Button**
+- Generates random ingredient combinations for inspiration
+- Perfect for discovering new recipe ideas
 
-1. **Select Filters**: Choose from:
-   - **🥗 Dietary Restrictions**: None, Vegetarian, Vegan, Keto, Paleo
-   - **🌍 Cuisine Types**: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai
-   - **🍽️ Meal Types**: Breakfast, Lunch, Dinner, Snacks, Desserts
-   - **⏱️ Cooking Time**: Quick (15min), Medium (30min), Long (60min+)
-   - **📚 Difficulty Level**: Beginner, Intermediate, Advanced
+#### 🔍 **Recipe Filtering & Discovery**
+Filter your saved recipes by:
+- **🥗 Dietary Restrictions**: None, Vegetarian, Vegan, Keto, Paleo
+- **🌍 Cuisine Types**: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai
+- **🍽️ Meal Types**: Breakfast, Lunch, Dinner, Snacks, Desserts
+- **⏱️ Cooking Time**: Quick (15min), Medium (30min), Long (60min+)
+- **📚 Difficulty Level**: Beginner, Intermediate, Advanced
 
-2. **Apply Filters**: Click "Apply Filters" to find matching recipes from your saved collection
+#### 📚 **Recipe Management**
+- **Recipe History**: Browse all your generated recipes
+- **Favorites**: Save and organize your preferred recipes
+- **Search**: Find recipes by title or ingredients
+- **Rating System**: Rate recipes 1-5 stars
+- **Statistics**: Track your recipe generation success
 
-3. **Browse Results**: View filtered recipes with ratings, favorites, and nutrition info
-
-**Example**: Filter for "Vegetarian" + "Italian" + "Dinner" + "Medium" + "Beginner" to find all your saved vegetarian Italian dinner recipes that are medium difficulty and beginner-friendly.
+#### 🗑️ **Data Management**
+- **Individual Deletion**: Remove specific recipes
+- **Bulk Operations**: Clear all recipes with confirmation
+- **Data Export**: All data stored in local SQLite database
 
 ### Example Input/Output
 
@@ -166,76 +145,99 @@ salmon, sweet potato, broccoli, olive oil, lemon
 - **Recipe**: "Roasted Salmon with Sweet Potato and Broccoli" (4 servings)
 - **Macros per serving**: ~35g protein, 25g carbs, 12g fat, 6g fiber
 - **Cooking steps**: Detailed preparation and cooking instructions
+- **Quality Score**: 95/100 with validation feedback
 
-## 🏗️ Architecture
+## 🏗️ Technical Architecture
 
 ```
-ai_recipe_app/
-├── app.py              # Main Streamlit application with UI and filtering
-├── database.py         # SQLite database with filtering capabilities
-├── utils.py            # USDA API integration and macro calculations
+NutrifyAI/
+├── app.py              # Main Streamlit application (1,700+ lines)
+├── database.py         # SQLite database management (535 lines)
+├── utils.py            # USDA API integration (122 lines)
 ├── requirements.txt    # Python dependencies
+├── recipes.db          # SQLite database file
 └── .streamlit/
     └── secrets.toml    # API keys configuration
 ```
 
 ### Key Components
 
-- **`app.py`**: Main application with Streamlit UI, Groq AI integration, and recipe filtering system
-- **`database.py`**: SQLite database management with filtering and search capabilities
-- **`utils.py`**: USDA FoodData Central API wrapper for nutritional data
-- **Pydantic Models**: Structured data validation for recipes
-- **Error Handling**: Graceful handling of API failures and invalid inputs
+- **`app.py`**: Main application with Streamlit UI, AI integration, and comprehensive recipe management
+- **`database.py`**: SQLite database with advanced filtering, search, and analytics capabilities
+- **`utils.py`**: USDA FoodData Central API wrapper with macro calculation algorithms
+- **Pydantic Models**: Structured data validation ensuring recipe quality and consistency
+- **Advanced CSS**: Custom glassmorphism design with animations and responsive layout
 
-## 🔌 APIs Used
+## 🔌 API Integrations
 
 ### Groq API
 - **Model**: Llama-3.1-8B-Instant
-- **Purpose**: Recipe generation from ingredients
+- **Purpose**: AI-powered recipe generation
+- **Performance**: 500+ tokens/second generation speed
 - **Rate Limit**: Generous free tier
 - **Documentation**: [console.groq.com](https://console.groq.com)
 
 ### USDA FoodData Central
-- **Purpose**: Nutritional data lookup
-- **Coverage**: 200,000+ food items
+- **Purpose**: Nutritional data lookup and macro calculations
+- **Coverage**: 200,000+ verified food items
 - **Rate Limit**: 1,000 requests/hour (free)
+- **Accuracy**: Government-verified nutritional data
 - **Documentation**: [fdc.nal.usda.gov](https://fdc.nal.usda.gov/api-guide.html)
 
-## 🧪 Technical Details
+## 🧪 Technical Implementation
 
-### Recipe Generation Process
+### Recipe Generation Pipeline
 
 1. **Input Validation**: Parses and validates ingredient list
-2. **AI Prompt**: Constructs structured prompt for Groq AI
-3. **JSON Parsing**: Extracts and validates recipe JSON
-4. **Macro Calculation**: Queries USDA API for each ingredient
-5. **Scaling**: Calculates per-serving and total macros
+2. **AI Prompt Engineering**: Constructs optimized prompts for Groq AI
+3. **JSON Parsing**: Extracts and validates recipe JSON with Pydantic
+4. **Quality Validation**: Checks ingredient usage and recipe quality
+5. **Macro Calculation**: Queries USDA API for each ingredient
+6. **Data Scaling**: Calculates per-serving and total macros
+7. **Database Storage**: Saves recipe with metadata and analytics
 
 ### Data Flow
 
 ```mermaid
 graph LR
-    A[User Input] --> B[Groq AI]
-    B --> C[Recipe JSON]
-    C --> D[USDA API]
-    D --> E[Macro Data]
-    E --> F[Final Output]
+    A[User Input] --> B[Input Validation]
+    B --> C[Groq AI]
+    C --> D[JSON Validation]
+    D --> E[Quality Check]
+    E --> F[USDA API]
+    F --> G[Macro Calculation]
+    G --> H[Database Storage]
+    H --> I[UI Display]
 ```
 
-## 📝 License
+### Quality Assurance System
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **Ingredient Usage Verification**: Ensures all provided ingredients are used
+- **Spelling Detection**: Identifies common spelling errors with suggestions
+- **Serving Size Validation**: Checks for realistic portion sizes
+- **Recipe Completeness**: Validates cooking instructions and steps
+- **Quality Scoring**: Provides 0-100 quality score with detailed feedback
 
-## 🔮 Future Enhancements
+## 🎯 Performance Optimizations
 
-- [x] Recipe rating and favorites system ✅
-- [x] Dietary restriction filters (vegan, keto, etc.) ✅
-- [ ] Shopping list generation
-- [ ] Recipe image generation
-- [ ] Meal planning calendar
-- [ ] Export to PDF/email
-- [ ] Ingredient substitution suggestions
-- [ ] Calorie target optimization
+- **Database Caching**: Optimized SQLite connections with intelligent caching
+- **API Rate Limiting**: Efficient API usage with error handling
+- **UI Responsiveness**: Smooth animations and fast page loads
+- **Memory Management**: Efficient data structures and cleanup
+- **Error Recovery**: Graceful handling of API failures and edge cases
+
+## 🔧 Configuration Options
+
+### Environment Variables (Alternative)
+```bash
+export GROQ_API_KEY="your_groq_api_key_here"
+export USDA_API_KEY="your_usda_api_key_here"
+```
+
+### Deployment
+For deployment on Streamlit Cloud or other platforms:
+- `groq_api_key`: Your Groq API key
+- `usda_api_key`: Your USDA API key
 
 ## 🆘 Troubleshooting
 
@@ -248,8 +250,48 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **"No USDA match found"**
 - Try simpler ingredient names (e.g., "chicken breast" instead of "organic free-range chicken")
 - Use generic terms rather than brand names
+- Check spelling of ingredient names
 
 **"Recipe generation failed"**
 - Check your Groq API key is valid and has remaining quota
 - Ensure internet connection is stable
+- Try with fewer ingredients (4-8 ingredients work best)
 
+**"Ingredients not used in recipe"**
+- Check spelling (e.g., "broccoli" not "brocoli")
+- Use simpler ingredient names
+- Try regenerating the recipe
+
+## 🔮 Future Enhancements
+
+- [x] Recipe rating and favorites system ✅
+- [x] Advanced filtering and search ✅
+- [x] Quality validation and feedback ✅
+- [x] Modern glassmorphism UI ✅
+- [x] Recipe management and analytics ✅
+- [ ] Shopping list generation
+- [ ] Recipe image generation
+- [ ] Meal planning calendar
+- [ ] Export to PDF/email
+- [ ] Ingredient substitution suggestions
+- [ ] Calorie target optimization
+- [ ] Multi-language support
+- [ ] Recipe sharing and collaboration
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Groq](https://groq.com/) for providing ultra-fast AI inference
+- [USDA FoodData Central](https://fdc.nal.usda.gov/) for comprehensive nutritional data
+- [Streamlit](https://streamlit.io/) for the amazing web app framework
+- [Pydantic](https://pydantic.dev/) for robust data validation
+- The open-source community for inspiration and tools
+
+---
+
+**Made with ❤️ for healthy cooking and smart nutrition**
+
+*Transform any combination of ingredients into a delicious, healthy meal with AI precision!*
