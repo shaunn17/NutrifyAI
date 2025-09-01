@@ -41,7 +41,7 @@ class RecipeOut(BaseModel):
     servings: int = Field(..., ge=1, le=12)
     ingredients_grams: List[IngredientOut]
     steps: List[str]
-    dietary_restriction: Optional[str] = None
+    dietary_restriction: str = "None"
     cuisine_type: Optional[str] = None
     meal_type: Optional[str] = None
     cooking_time: Optional[str] = None
@@ -55,26 +55,63 @@ def generate_recipe_json(ingredients: List[str]) -> RecipeOut:
     """
     client = Groq(api_key=GROQ_API_KEY)
 
+    # system_msg = (
+    #     "You are an expert chef and nutritionist with 20+ years of experience. Create delicious, practical recipes "
+    #     "ONLY with the ingredients provided. Focus on flavor combinations that actually work together. "
+    #     "CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no commentary, no markdown formatting. "
+    #     "Return STRICT JSON with keys: title (string), servings (int 1-12), "
+    #     "ingredients_grams (list of objects {name, grams}), steps (list of strings), "
+    #     "dietary_restriction (string: MUST be one of: 'None', 'Vegetarian', 'Vegan', 'Keto', 'Paleo' - never null or empty), "
+    #     "cuisine_type (string: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai, or None), "
+    #     "meal_type (string: Breakfast, Lunch, Dinner, Snacks, Desserts), "
+    #     "cooking_time (string: Quick (15min), Medium (30min), Long (60min+)), "
+    #     "difficulty_level (string: Beginner, Intermediate, Advanced). "
+    #     "All ingredient quantities MUST have grams; estimate sensible amounts. "
+    #     "Do not add ingredients not provided, except basic salt/pepper which you may exclude from macros. "
+    #     "RESPOND WITH ONLY THE JSON OBJECT - NO OTHER TEXT."
+    # )
+
     system_msg = (
-        "You are a nutritionist-chef. Create a healthy, tasty recipe ONLY with the ingredients provided. "
-        "Return STRICT JSON with keys: title (string), servings (int 1-12), "
-        "ingredients_grams (list of objects {name, grams}), steps (list of strings), "
-        "dietary_restriction (string: Vegetarian, Vegan, Keto, Paleo, Mediterranean, or None), "
-        "cuisine_type (string: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai, or None), "
-        "meal_type (string: Breakfast, Lunch, Dinner, Snacks, Desserts), "
-        "cooking_time (string: Quick (15min), Medium (30min), Long (60min+)), "
-        "difficulty_level (string: Beginner, Intermediate, Advanced). "
-        "All ingredient quantities MUST have grams; estimate sensible amounts. "
-        "Do not add ingredients not provided, except basic salt/pepper which you may exclude from macros."
-    )
+    "You are a Michelin-starred chef and certified nutritionist. Create exceptional recipes using ONLY the provided ingredients. "
+    "Your response must be a single, valid JSON object with no additional text, explanations, or markdown formatting. "
+    "Never use code blocks, backticks, or any formatting. Start your response with { and end with }. "
+    "Required JSON schema: {title: string, servings: integer 1-12, ingredients_grams: [{name: string, grams: number}], "
+    "steps: [string], dietary_restriction: string, cuisine_type: string, meal_type: string, cooking_time: string, difficulty_level: string}. "
+    "dietary_restriction must be exactly one of: None, Vegetarian, Vegan, Keto, Paleo. "
+    "cuisine_type must be exactly one of: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai, None. "
+    "meal_type must be exactly one of: Breakfast, Lunch, Dinner, Snacks, Desserts. "
+    "cooking_time must be exactly one of: Quick (15min), Medium (30min), Long (60min+). "
+    "difficulty_level must be exactly one of: Beginner, Intermediate, Advanced. "
+    "All ingredient quantities must be realistic numbers in grams. Use only provided ingredients except optional salt/pepper. "
+    "Create balanced, flavorful recipes with proper cooking techniques and clear instructions."
+)
+
+    # user_msg = (
+    #     "Ingredients: " + ", ".join(ingredients) + "\n\n"
+    #     "CRITICAL RULES:\n"
+    #     "1) Use ONLY these ingredients (ignore pantry basics like salt/pepper for macros).\n"
+    #     "2) Create recipes that make culinary sense - think about flavor profiles and cooking techniques.\n"
+    #     "3) Provide realistic grams per ingredient (150-300g protein, 50-150g carbs, 10-30g fats per serving).\n"
+    #     "4) Write clear, step-by-step cooking instructions that a home cook can follow.\n"
+    #     "5) Consider cooking methods: sauté, roast, grill, bake, etc. - use appropriate techniques.\n"
+    #     "6) Balance flavors: sweet, salty, sour, umami - make it taste good!\n"
+    #     "7) Servings must be an integer (1-12).\n"
+    #     "8) RESPOND WITH ONLY VALID JSON - NO EXPLANATIONS, NO MARKDOWN, NO EXTRA TEXT."
+    # )
 
     user_msg = (
-        "Ingredients: " + ", ".join(ingredients) + "\n\n"
-        "Rules:\n"
-        "1) Use only these ingredients (ignore pantry basics for macros).\n"
-        "2) Provide realistic grams per ingredient so totals are ~400-700g per serving for a meal.\n"
-        "3) Servings must be an integer.\n"
-        "4) Output VALID JSON only. No extra commentary."
+    "Ingredients: " + ", ".join(ingredients) + "\n\n"
+    "Create a recipe using ONLY these ingredients. Requirements:\n"
+    "1. JSON format only - no markdown, no explanations, no code blocks\n"
+    "2. Use all provided ingredients with realistic gram amounts\n"
+    "3. Target nutrition per serving: 150-300g protein, 50-150g carbs, 10-30g fats\n"
+    "4. Write 4-8 clear cooking steps with proper techniques\n"
+    "5. Balance flavors and use appropriate cooking methods\n"
+    "6. Ensure recipe is practical for home cooking\n"
+    "7. Servings must be integer 1-12\n"
+    "8. All string values must match exact schema options\n"
+    "9. Start response with { and end with }\n"
+    "10. No additional text outside the JSON object"
     )
 
     resp = client.chat.completions.create(
@@ -89,20 +126,92 @@ def generate_recipe_json(ingredients: List[str]) -> RecipeOut:
 
     content = resp.choices[0].message.content.strip()
 
-    # Try to extract JSON
+    # Try to extract JSON with improved error handling
+    data = None
+    
+    # First, try to parse the entire content
     try:
         data = json.loads(content)
-    except json.JSONDecodeError:
-        # Fallback: attempt to find JSON block
-        start = content.find("{")
-        end = content.rfind("}")
-        if start != -1 and end != -1 and end > start:
-            data = json.loads(content[start:end+1])
-        else:
-            raise ValueError("Model did not return valid JSON.")
+    except json.JSONDecodeError as e:
+        # If that fails, try to find and extract JSON block
+        try:
+            # Look for JSON between first { and last }
+            start = content.find("{")
+            end = content.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                json_content = content[start:end+1]
+                data = json.loads(json_content)
+            else:
+                # Try to find JSON in code blocks
+                import re
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group(1))
+                else:
+                    # Last resort: try to find any valid JSON structure
+                    json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', content, re.DOTALL)
+                    if json_match:
+                        data = json.loads(json_match.group(0))
+                    else:
+                        raise ValueError(f"Could not extract valid JSON from response. Error: {e}")
+        except json.JSONDecodeError as e2:
+            raise ValueError(f"Failed to parse JSON after multiple attempts. Original error: {e}, Secondary error: {e2}")
+    
+    if data is None:
+        raise ValueError("No valid JSON data found in response.")
 
+    # Debug: Print the raw data to see what we're getting
+    print(f"DEBUG: Raw dietary_restriction from AI: {data.get('dietary_restriction', 'NOT_FOUND')}")
+    
+    # Fix dietary_restriction at the data level before Pydantic validation
+    if data.get('dietary_restriction') is None or data.get('dietary_restriction') == "":
+        data['dietary_restriction'] = "None"
+    
     # Validate with pydantic
-    return RecipeOut(**data)
+    recipe = RecipeOut(**data)
+    
+    # Ensure dietary_restriction is never null or empty
+    if recipe.dietary_restriction is None or recipe.dietary_restriction == "" or recipe.dietary_restriction.strip() == "":
+        recipe.dietary_restriction = "None"
+    
+    print(f"DEBUG: Final dietary_restriction: {recipe.dietary_restriction}")
+    
+    # Additional recipe quality validation
+    recipe = validate_recipe_quality(recipe, ingredients)
+    
+    return recipe
+
+def validate_recipe_quality(recipe: RecipeOut, original_ingredients: List[str]) -> RecipeOut:
+    """
+    Validate and improve recipe quality by checking for common issues.
+    """
+    # Check if all original ingredients are used
+    original_ingredient_names = [ing.lower().strip() for ing in original_ingredients]
+    recipe_ingredient_names = [ing.name.lower().strip() for ing in recipe.ingredients_grams]
+    
+    # Find missing ingredients
+    missing_ingredients = []
+    for orig_ing in original_ingredient_names:
+        if not any(orig_ing in recipe_ing or recipe_ing in orig_ing for recipe_ing in recipe_ingredient_names):
+            missing_ingredients.append(orig_ing)
+    
+    # Check for unrealistic serving sizes
+    total_grams = sum(ing.grams for ing in recipe.ingredients_grams)
+    if recipe.servings > 0:
+        grams_per_serving = total_grams / recipe.servings
+        if grams_per_serving < 100:  # Too small
+            recipe.servings = max(1, int(total_grams / 200))
+        elif grams_per_serving > 1000:  # Too large
+            recipe.servings = max(1, int(total_grams / 500))
+    
+    # Check for reasonable ingredient quantities
+    for ingredient in recipe.ingredients_grams:
+        if ingredient.grams > 500:  # Unrealistically large
+            ingredient.grams = min(ingredient.grams, 300)
+        elif ingredient.grams < 5:  # Unrealistically small
+            ingredient.grams = max(ingredient.grams, 10)
+    
+    return recipe
 
 # --- Custom CSS Styling ---
 st.markdown("""
@@ -780,11 +889,12 @@ default_ing = ""
 col1, col2 = st.columns([3, 1])
 with col1:
     ingredients_input = st.text_area(
-        "",
+        "Ingredients",
         value=default_ing, 
         height=100, 
         placeholder="Enter your ingredients separated by commas...\nExample: chicken breast, quinoa, spinach, olive oil, garlic",
-        help="💡 Tip: Use simple ingredient names for best results!"
+        help="💡 Tip: Use simple ingredient names for best results!",
+        label_visibility="collapsed"
     )
 
 with col2:
@@ -802,12 +912,13 @@ with col2:
         ]
         import random
         ingredients_input = st.text_area(
-            "",
+            "Surprise Ingredients",
             value=random.choice(surprise_ingredients), 
             height=100, 
             placeholder="Enter your ingredients separated by commas...",
             help="💡 Tip: Use simple ingredient names for best results!",
-            key="surprise_ingredients"
+            key="surprise_ingredients",
+            label_visibility="collapsed"
         )
 
 if run_btn:
@@ -1047,6 +1158,66 @@ if run_btn:
             </div>
             """, unsafe_allow_html=True)
 
+    # Recipe Quality Feedback
+    st.markdown("""
+    <div class="recipe-card fade-in" style="margin-top: 1.5rem;">
+        <h3 style="color: white; font-family: 'JetBrains Mono', monospace; margin-bottom: 0.75rem; font-weight: 600; font-size: 1.3rem;">
+            🎯 Recipe Quality Check
+        </h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Check recipe quality
+    quality_issues = []
+    quality_score = 100
+    
+    # Check ingredient usage
+    original_ingredient_names = [ing.lower().strip() for ing in ingredients]
+    recipe_ingredient_names = [ing.name.lower().strip() for ing in recipe.ingredients_grams]
+    missing_ingredients = []
+    for orig_ing in original_ingredient_names:
+        if not any(orig_ing in recipe_ing or recipe_ing in orig_ing for recipe_ing in recipe_ingredient_names):
+            missing_ingredients.append(orig_ing)
+    
+    if missing_ingredients:
+        quality_issues.append(f"⚠️ Missing ingredients: {', '.join(missing_ingredients)}")
+        quality_score -= 20
+    
+    # Check serving size
+    total_grams = sum(ing.grams for ing in recipe.ingredients_grams)
+    if recipe.servings > 0:
+        grams_per_serving = total_grams / recipe.servings
+        if grams_per_serving < 150:
+            quality_issues.append("⚠️ Serving size may be too small")
+            quality_score -= 10
+        elif grams_per_serving > 800:
+            quality_issues.append("⚠️ Serving size may be too large")
+            quality_score -= 10
+    
+    # Check cooking instructions
+    if len(recipe.steps) < 3:
+        quality_issues.append("⚠️ Cooking instructions could be more detailed")
+        quality_score -= 15
+    
+    # Display quality feedback
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        if quality_issues:
+            st.warning("**Recipe Quality Issues Found:**")
+            for issue in quality_issues:
+                st.write(f"• {issue}")
+        else:
+            st.success("✅ **Recipe looks great!** All quality checks passed.")
+    
+    with col2:
+        if quality_score >= 90:
+            st.success(f"**Quality Score: {quality_score}/100** 🌟")
+        elif quality_score >= 70:
+            st.info(f"**Quality Score: {quality_score}/100** 👍")
+        else:
+            st.warning(f"**Quality Score: {quality_score}/100** ⚠️")
+    
     # Footer note
     st.markdown("""
     <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
@@ -1128,7 +1299,7 @@ st.markdown("---")
 st.markdown("## 🔍 Recipe Filtering & Categories")
 
 # Define available categories
-dietary_options = ["All", "Vegetarian", "Vegan", "Keto", "Paleo", "Mediterranean"]
+dietary_options = ["All", "None", "Vegetarian", "Vegan", "Keto", "Paleo"]
 cuisine_options = ["All", "Italian", "Asian", "Mexican", "Mediterranean", "American", "Indian", "French", "Thai"]
 meal_options = ["All", "Breakfast", "Lunch", "Dinner", "Snacks", "Desserts"]
 time_options = ["All", "Quick (15min)", "Medium (30min)", "Long (60min+)"]

@@ -8,7 +8,7 @@ A smart recipe generator that creates personalized healthy recipes from your ava
 
 ## ✨ Features
 
-- **🤖 AI Recipe Generation**: Uses Groq's Llama-3.1 model to create customized recipes from your ingredients
+- **🤖 AI Recipe Generation**: Uses Groq's Llama-3.1-8B-Instant model to create customized recipes from your ingredients
 - **📊 Nutritional Analysis**: Fetches accurate macro data (protein, carbs, fat, fiber) from USDA FoodData Central
 - **🍽️ Smart Portioning**: Calculates macros per serving and total recipe
 - **🎯 Ingredient-Only Recipes**: Creates recipes using ONLY the ingredients you provide
@@ -117,7 +117,7 @@ For deployment on Streamlit Cloud or other platforms, add your API keys to the p
 After generating recipes, use the **Recipe Filtering & Categories** section to:
 
 1. **Select Filters**: Choose from:
-   - **🥗 Dietary Restrictions**: Vegetarian, Vegan, Keto, Paleo, Mediterranean
+   - **🥗 Dietary Restrictions**: None, Vegetarian, Vegan, Keto, Paleo
    - **🌍 Cuisine Types**: Italian, Asian, Mexican, Mediterranean, American, Indian, French, Thai
    - **🍽️ Meal Types**: Breakfast, Lunch, Dinner, Snacks, Desserts
    - **⏱️ Cooking Time**: Quick (15min), Medium (30min), Long (60min+)
@@ -164,7 +164,7 @@ ai_recipe_app/
 ## 🔌 APIs Used
 
 ### Groq API
-- **Model**: Llama-3.1-8b-instant
+- **Model**: Llama-3.1-8B-Instant
 - **Purpose**: Recipe generation from ingredients
 - **Rate Limit**: Generous free tier
 - **Documentation**: [console.groq.com](https://console.groq.com)
