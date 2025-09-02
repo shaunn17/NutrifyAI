@@ -282,16 +282,5 @@ For deployment on Streamlit Cloud or other platforms:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- [Groq](https://groq.com/) for providing ultra-fast AI inference
-- [USDA FoodData Central](https://fdc.nal.usda.gov/) for comprehensive nutritional data
-- [Streamlit](https://streamlit.io/) for the amazing web app framework
-- [Pydantic](https://pydantic.dev/) for robust data validation
-- The open-source community for inspiration and tools
-
----
-
-**Made with ❤️ for healthy cooking and smart nutrition**
 
 *Transform any combination of ingredients into a delicious, healthy meal with AI precision!*
